@@ -23,25 +23,35 @@
 
   <main>
     <section class="hero" aria-labelledby="hero-title">
-      <!-- MEDIEN-PLATZHALTER: Ersetze die src-URL durch dein eigenes Video. -->
-      <video class="hero__video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=2200&q=85">
-        <source src="https://videos.pexels.com/video-files/3129595/3129595-hd_1920_1080_25fps.mp4" type="video/mp4">
-        Dein Browser unterstützt keine HTML5-Videos.
-      </video>
-      <div class="hero__veil"></div>
-      <div class="hero__content reveal">
-        <p class="eyebrow">Multimedia Production · 2026</p>
-        <h1 id="hero-title">Visual storytelling<br><em>&amp; moving images.</em></h1>
-        <p class="hero__intro">Ich entwickle visuelle Geschichten, die bleiben — von der ersten Idee bis zum finalen Frame.</p>
-       <!-- <a class="button button--light" href="portfolio.html">Zum Portfolio <span aria-hidden="true">↗</span></a> -->
+      <div class="hero__stage">
+        <video class="hero__video" autoplay muted loop playsinline preload="metadata">
+          <source src="assets/videos/hero-2.mp4" type="video/mp4">
+        </video>
+        <div class="hero__veil"></div>
+        <div class="hero__dim" aria-hidden="true"></div>
       </div>
-      <p class="scroll-hint" aria-hidden="true"><span></span> Scroll to explore</p>
+      <div class="hero__content">
+        <p class="eyebrow">Multimedia Production · 2026</p>
+        <h1 id="hero-title" class="split-title"><span>Visual storytelling</span><em>&amp; moving images.</em></h1>
+        <p class="hero__intro">Ich entwickle visuelle Geschichten, die bleiben — von der ersten Idee bis zum finalen Frame.</p>
+      </div>
+      <p class="hero__meta" aria-hidden="true">
+        <span data-hero-timecode>00:00:00:00</span>
+        <span>24fps</span>
+        <span>mute</span>
+      </p>
     </section>
 
     <section class="statement section-pad reveal" aria-labelledby="statement-title">
-      <div class="section-label">01 / About</div>
+      <aside class="statement__portrait">
+        <div class="section-label">01 / About</div>
+        <!-- MEDIEN-PLATZHALTER: Ersetze das Bild durch ein eigenes Portrait (4:5). -->
+        <figure class="statement-still">
+          <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=85" alt="Platzhalter: Portrait am Set" loading="lazy">
+        </figure>
+      </aside>
       <div class="statement__copy">
-        <h2 id="statement-title">Momente beobachten.<br><em>Geschichten erzählen.</em></h2>
+        <h2 id="statement-title" class="split-title"><span>Momente beobachten.</span><em>Geschichten erzählen.</em></h2>
         <p>Ich bin Denja, Multimedia Production Student mit einem Faible für echte Momente, klare Kompositionen und Bilder mit Charakter.</p>
         <a class="text-link" href="portfolio.html">Alle Arbeiten ansehen <span aria-hidden="true">↗</span></a>
       </div>
@@ -55,10 +65,14 @@
         </div>
         <a class="text-link" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">@framesbydenja <span aria-hidden="true">↗</span></a>
       </div>
-      <!-- Instagram lädt hier den aktuellen Profilinhalt direkt von @framesbydenja. -->
-      <div class="instagram-embed reveal">
-        <iframe src="https://www.instagram.com/framesbydenja/embed" title="Instagram-Profil von @framesbydenja" loading="lazy"></iframe>
-        <a class="instagram-embed__fallback" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Profil auf Instagram öffnen <span aria-hidden="true">↗</span></a>
+      <!-- MEDIEN-PLATZHALTER: Ersetze die Bilder durch Stills aus @framesbydenja. -->
+      <div class="instagram-grid">
+        <a class="instagram-tile reveal" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer" aria-label="Beitrag auf Instagram öffnen"><img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=900&q=80" alt="Platzhalter: Kameraperspektive" loading="lazy"><span aria-hidden="true">↗</span></a>
+        <a class="instagram-tile reveal" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer" aria-label="Beitrag auf Instagram öffnen"><img src="https://images.unsplash.com/photo-1476673160081-cf065607f449?auto=format&fit=crop&w=900&q=80" alt="Platzhalter: Küste aus der Luft" loading="lazy"><span aria-hidden="true">↗</span></a>
+        <a class="instagram-tile reveal" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer" aria-label="Beitrag auf Instagram öffnen"><img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80" alt="Platzhalter: Festivalmoment" loading="lazy"><span aria-hidden="true">↗</span></a>
+        <a class="instagram-tile reveal" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer" aria-label="Beitrag auf Instagram öffnen"><img src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80" alt="Platzhalter: Architekturdetail" loading="lazy"><span aria-hidden="true">↗</span></a>
+        <a class="instagram-tile reveal" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer" aria-label="Beitrag auf Instagram öffnen"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80" alt="Platzhalter: Landschaftslicht" loading="lazy"><span aria-hidden="true">↗</span></a>
+        <a class="instagram-tile reveal" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer" aria-label="Beitrag auf Instagram öffnen"><img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=900&q=80" alt="Platzhalter: Bühne" loading="lazy"><span aria-hidden="true">↗</span></a>
       </div>
     </section>
   </main>

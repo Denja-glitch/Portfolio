@@ -95,6 +95,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const hero = document.querySelector('.hero');
+  if (hero) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const video = hero.querySelector('.hero__video');
+    const timecode = hero.querySelector('[data-hero-timecode]');
+    const pad = (value) => String(Math.floor(value)).padStart(2, '0');
+    const formatTimecode = (seconds) => {
+      const frames = Math.floor((seconds % 1) * 24);
+      const total = Math.floor(seconds);
+      const s = total % 60;
+      const m = Math.floor(total / 60) % 60;
+      const h = Math.floor(total / 3600);
+      return `${pad(h)}:${pad(m)}:${pad(s)}:${pad(frames)}`;
+    };
+
+    const openHero = () => hero.classList.add('is-open');
+    if (reduceMotion) {
+      openHero();
+      video?.pause();
+    } else {
+      window.requestAnimationFrame(() => window.requestAnimationFrame(openHero));
+      video?.play()?.catch(() => {});
+    }
+
+    if (video && timecode && !reduceMotion) {
+      const tickTimecode = () => {
+        timecode.textContent = formatTimecode(video.currentTime || 0);
+        window.requestAnimationFrame(tickTimecode);
+      };
+      window.requestAnimationFrame(tickTimecode);
+    }
+
+    if (!reduceMotion) {
+      const updateHeroScroll = () => {
+        const rect = hero.getBoundingClientRect();
+        const progress = Math.min(1, Math.max(0, -rect.top / Math.max(rect.height, 1)));
+        hero.style.setProperty('--hero-progress', progress.toFixed(3));
+      };
+      updateHeroScroll();
+      window.addEventListener('scroll', updateHeroScroll, { passive: true });
+    }
+  }
+
   const filterButtons = document.querySelectorAll('.filter-button');
   const projectCards = document.querySelectorAll('.project-card');
   if (!filterButtons.length || !projectCards.length) return;

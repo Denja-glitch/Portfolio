@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kontakt zu Denja Amstutz für Multimedia Production, Film und Fotografie.">
+  <title>Let's talk — Denja Amstutz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body class="contact-page">
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Startseite">DA<span>.</span></a>
+    <nav class="main-nav" aria-label="Hauptnavigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="portfolio.html">Portfolio</a>
+    </nav>
+    <a class="header-contact" href="contact.html" aria-current="page">Let's talk <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main>
+    <section class="contact-intro section-pad">
+      <div class="section-label reveal">03 / Contact</div>
+      <div class="contact-layout">
+        <div class="reveal">
+          <h1 class="contact-title">Let's<br><em>talk.</em></h1>
+          <p class="contact-copy">Du hast ein Projekt, eine Idee oder möchtest einfach Hallo sagen? Schreib mir gerne ein paar Zeilen.</p>
+          <!-- KONTAKT-PLATZHALTER: Hier deine echten Kontaktdaten einsetzen. -->
+          <div class="contact-details">
+            <p>Denja Amstutz</p>
+            <p><a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a></p>
+            <p>Luzern · Switzerland</p>
+          </div>
+        </div>
+
+        <form class="contact-form reveal" action="mailto:framesbydenja@gmail.com" method="post" enctype="text/plain">
+          <div class="form-field">
+            <label for="name">Dein Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="form-field">
+            <label for="email">Deine E-Mail</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="form-field">
+            <label for="subject">Betreff</label>
+            <input id="subject" name="subject" type="text" required>
+          </div>
+          <div class="form-field">
+            <label for="message">Deine Nachricht</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <button class="button button--dark" type="submit">Nachricht senden <span aria-hidden="true">↗</span></button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer section-pad">
+    <div class="footer-top"><a class="wordmark" href="index.html">DA<span>.</span></a><span>© 2026 Denja Amstutz</span></div>
+    <a class="footer-mail" href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>

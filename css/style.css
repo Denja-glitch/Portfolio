@@ -377,7 +377,8 @@ html:has(.contact-page) { background: #efece6; }
 .reveal { filter: blur(4px); opacity: 0; transform: translateY(6.25rem); transition: filter .6s var(--ease), opacity .6s var(--ease), transform .6s var(--ease); }
 .reveal.is-visible { filter: blur(0); opacity: 1; transform: translateY(0); }
 .hero__content.reveal,
-.split-title.reveal { filter: none; opacity: 1; transform: none; }
+.split-title.reveal,
+.contact-copy.reveal { filter: none; opacity: 1; transform: none; }
 .hero__content .eyebrow,
 .hero__content .hero__intro,
 .split-title > span,
@@ -472,6 +473,8 @@ html:has(.contact-page) { background: #efece6; }
   .instagram-grid { gap: .35rem; }
   .portfolio-intro { padding-bottom: clamp(2.75rem, 8vw, 4rem); padding-top: clamp(3.5rem, 12vw, 5.25rem); }
   .portfolio-intro__copy { margin: 1.85rem 0 0; }
+  .contact-stage { justify-content: flex-start; padding-bottom: 2.75rem; padding-top: 2rem; }
+  .contact-body { margin-top: 2.75rem; }
   .contact-copy { margin: 1.15rem 0 0; }
   .contact-clock { gap: .35rem; padding: 1rem 1.05rem; }
   .contact-clock__cell { min-width: 2.4rem; }

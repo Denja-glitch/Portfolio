@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
       entry.target.classList.add('is-visible');
       observer.unobserve(entry.target);
     });
-  }, { rootMargin: '0px 0px -200px 0px', threshold: 0 });
+  }, { rootMargin: window.matchMedia('(max-width: 700px)').matches ? '0px 0px -32px 0px' : '0px 0px -200px 0px', threshold: 0 });
 
   revealElements.forEach((element) => revealObserver.observe(element));
 

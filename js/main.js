@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'lightbox__still';
-        button.setAttribute('aria-label', slide.caption ? `${slide.caption} vergrößern` : 'Still vergrößern');
+        button.setAttribute('aria-label', slide.caption ? `${slide.caption} vergrössern` : 'Still vergrössern');
         button.append(createMedia(slide, projectTitle, false));
         button.addEventListener('click', () => openStillViewer(isPhotography ? index + 1 : index));
         stillsContainer.append(button);
@@ -364,30 +364,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterButtons = document.querySelectorAll('.filter-button');
   const projectCards = document.querySelectorAll('.project-card');
   const projectGrid = document.querySelector('.project-grid');
-  if (!filterButtons.length || !projectCards.length) return;
-  let filterTimer;
+  if (filterButtons.length && projectCards.length) {
+    let filterTimer;
 
-  filterButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const selectedFilter = button.dataset.filter;
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const selectedFilter = button.dataset.filter;
 
-      filterButtons.forEach((filterButton) => {
-        const isActive = filterButton === button;
-        filterButton.classList.toggle('is-active', isActive);
-        filterButton.setAttribute('aria-pressed', isActive);
-      });
-
-      projectGrid?.classList.toggle('is-filtered', selectedFilter !== 'all');
-      window.clearTimeout(filterTimer);
-      projectCards.forEach((card) => card.classList.add('is-filtering'));
-
-      filterTimer = window.setTimeout(() => {
-        projectCards.forEach((card) => {
-          const shouldShow = selectedFilter === 'all' || card.dataset.category === selectedFilter;
-          card.classList.toggle('is-hidden', !shouldShow);
-          if (shouldShow) window.requestAnimationFrame(() => card.classList.remove('is-filtering'));
+        filterButtons.forEach((filterButton) => {
+          const isActive = filterButton === button;
+          filterButton.classList.toggle('is-active', isActive);
+          filterButton.setAttribute('aria-pressed', isActive);
         });
-      }, 300);
+
+        projectGrid?.classList.toggle('is-filtered', selectedFilter !== 'all');
+        window.clearTimeout(filterTimer);
+        projectCards.forEach((card) => card.classList.add('is-filtering'));
+
+        filterTimer = window.setTimeout(() => {
+          projectCards.forEach((card) => {
+            const shouldShow = selectedFilter === 'all' || card.dataset.category === selectedFilter;
+            card.classList.toggle('is-hidden', !shouldShow);
+            if (shouldShow) window.requestAnimationFrame(() => card.classList.remove('is-filtering'));
+          });
+        }, 300);
+      });
     });
-  });
+  }
 });

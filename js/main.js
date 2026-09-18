@@ -115,14 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const slides = parseSlides(trigger);
       const videos = slides.filter(isVideoSlide);
       const images = slides.filter((slide) => !isVideoSlide(slide));
+      const isPhotography = !videos.length;
       const features = videos.length ? videos : images.slice(0, 1);
       const stills = videos.length ? images : images.slice(1);
 
+      lightbox.classList.toggle('is-photography', isPhotography);
       featureContainer.replaceChildren();
       stillsContainer.replaceChildren();
       features.forEach((slide, index) => {
         featureContainer.append(createMedia(slide, projectTitle, index === 0));
       });
+
+      if (isPhotography) {
+        featureContainer.querySelector('img')?.addEventListener('click', () => openStillViewer(0));
+      }
 
       stills.forEach((slide, index) => {
         const button = document.createElement('button');
@@ -130,11 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
         button.className = 'lightbox__still';
         button.setAttribute('aria-label', slide.caption ? `${slide.caption} vergrößern` : 'Still vergrößern');
         button.append(createMedia(slide, projectTitle, false));
-        button.addEventListener('click', () => openStillViewer(index));
+        button.addEventListener('click', () => openStillViewer(isPhotography ? index + 1 : index));
         stillsContainer.append(button);
       });
       stillsContainer.hidden = !stills.length;
-      activeStills = stills;
+      activeStills = isPhotography ? images : stills;
       stillIndex = 0;
 
       titleElement.textContent = projectTitle;
@@ -357,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const filterButtons = document.querySelectorAll('.filter-button');
   const projectCards = document.querySelectorAll('.project-card');
+  const projectGrid = document.querySelector('.project-grid');
   if (!filterButtons.length || !projectCards.length) return;
   let filterTimer;
 
@@ -370,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filterButton.setAttribute('aria-pressed', isActive);
       });
 
+      projectGrid?.classList.toggle('is-filtered', selectedFilter !== 'all');
       window.clearTimeout(filterTimer);
       projectCards.forEach((card) => card.classList.add('is-filtering'));
 

@@ -276,6 +276,7 @@ html:has(.contact-page) { background: var(--ink); }
 .project-card.reveal.is-visible:nth-child(5) .project-card__media { transition-delay: .08s; }
 .project-card.reveal.is-visible:nth-child(6) .project-card__media { transition-delay: .18s; }
 .project-card.reveal.is-visible:nth-child(7) .project-card__media { transition-delay: .12s; }
+.project-card.reveal.is-visible:nth-child(8) .project-card__media { transition-delay: .2s; }
 .statement__copy.reveal { transform: translateX(1.25rem); }
 .statement__copy.reveal.is-visible { transform: none; }
 .statement-still.reveal {

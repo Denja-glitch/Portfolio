@@ -20,22 +20,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const countElement = lightbox.querySelector('[data-lightbox-count]');
     const previousButton = lightbox.querySelector('[data-lightbox-prev]');
     const nextButton = lightbox.querySelector('[data-lightbox-next]');
-    let activeGallery = [];
+    let activeSlides = [];
     let activeIndex = 0;
     let activeTrigger;
     let closeTimer;
 
+    const youtubeId = (src) => {
+      const match = src.match(/(?:youtube\.com\/embed\/|youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
+      return match ? match[1] : null;
+    };
+
+    const detectType = (src) => {
+      if (youtubeId(src)) return 'youtube';
+      if (/\.(mp4|webm|mov)(\?|$)/i.test(src)) return 'video';
+      return 'image';
+    };
+
+    const mediaUrl = (src, type) => {
+      if (type !== 'youtube') return src;
+      return `https://www.youtube.com/embed/${youtubeId(src)}?autoplay=1`;
+    };
+
+    const parseSlides = (trigger) => {
+      const gallery = (trigger.dataset.gallery || '').split('|').map((item) => item.trim()).filter(Boolean);
+      const captions = (trigger.dataset.captions || '').split('|').map((item) => item.trim());
+      const sources = [];
+
+      if (trigger.dataset.mediaSrc) sources.push(trigger.dataset.mediaSrc);
+      gallery.forEach((src) => {
+        if (src !== trigger.dataset.mediaSrc) sources.push(src);
+      });
+
+      return sources.map((src, index) => {
+        const type = trigger.dataset.mediaSrc && index === 0 && trigger.dataset.mediaType
+          ? trigger.dataset.mediaType
+          : detectType(src);
+        const caption = captions.some(Boolean)
+          ? (captions[index] || '')
+          : (index === 0 ? (trigger.dataset.description || '') : '');
+        return { src: mediaUrl(src, type), type, caption };
+      });
+    };
+
     const renderMedia = () => {
       const trigger = activeTrigger;
+      const slide = activeSlides[activeIndex];
       const projectTitle = trigger.closest('.project-card').querySelector('h3').textContent;
-      const mediaType = trigger.dataset.mediaType;
-      const isVideo = mediaType === 'video' && activeIndex === 0;
-      const isEmbeddedVideo = mediaType === 'youtube' && activeIndex === 0;
-      const source = (isVideo || isEmbeddedVideo) ? trigger.dataset.mediaSrc : activeGallery[activeIndex];
       mediaContainer.replaceChildren();
+      if (!slide) return;
+
+      const isEmbeddedVideo = slide.type === 'youtube';
+      const isVideo = slide.type === 'video';
       const media = document.createElement(isEmbeddedVideo ? 'iframe' : (isVideo ? 'video' : 'img'));
-      media.src = source;
-      media.alt = `${projectTitle} - ${activeIndex + 1}`;
+      media.src = slide.src;
       if (isEmbeddedVideo) {
         media.title = `${projectTitle} abspielen`;
         media.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -45,19 +82,22 @@ document.addEventListener('DOMContentLoaded', () => {
         media.controls = true;
         media.autoplay = true;
         media.playsInline = true;
+      } else {
+        media.alt = `${projectTitle} – ${activeIndex + 1}`;
       }
       mediaContainer.append(media);
       titleElement.textContent = projectTitle;
-      descriptionElement.textContent = trigger.dataset.description || '';
-      countElement.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(activeGallery.length).padStart(2, '0')}`;
-      previousButton.disabled = activeGallery.length < 2;
-      nextButton.disabled = activeGallery.length < 2;
+      descriptionElement.textContent = slide.caption;
+      descriptionElement.hidden = !slide.caption;
+      countElement.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(activeSlides.length).padStart(2, '0')}`;
+      previousButton.disabled = activeSlides.length < 2;
+      nextButton.disabled = activeSlides.length < 2;
     };
 
     const openLightbox = (trigger) => {
       window.clearTimeout(closeTimer);
       activeTrigger = trigger;
-      activeGallery = trigger.dataset.gallery.split('|');
+      activeSlides = parseSlides(trigger);
       activeIndex = 0;
       renderMedia();
       lightbox.classList.add('is-open');
@@ -86,11 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     lightbox.querySelectorAll('[data-lightbox-close]').forEach((closeButton) => closeButton.addEventListener('click', closeLightbox));
     previousButton.addEventListener('click', () => {
-      activeIndex = (activeIndex - 1 + activeGallery.length) % activeGallery.length;
+      activeIndex = (activeIndex - 1 + activeSlides.length) % activeSlides.length;
       renderMedia();
     });
     nextButton.addEventListener('click', () => {
-      activeIndex = (activeIndex + 1) % activeGallery.length;
+      activeIndex = (activeIndex + 1) % activeSlides.length;
       renderMedia();
     });
     document.addEventListener('keydown', (event) => {

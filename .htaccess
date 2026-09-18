@@ -2,12 +2,9 @@ DirectoryIndex index.html
 ErrorDocument 404 404.html
 
 RewriteEngine On
+Options -MultiViews
 
 RewriteRule ^index\.html$ ./ [R=301,L]
-
-RewriteCond %{THE_REQUEST} \s[^?]*\.html[?\s] [NC]
-RewriteRule ^(.+)\.html$ $1 [R=301,L]
-
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^(.+?)/?$ $1.html [L]
+RewriteRule ^portfolio\.html$ portfolio/ [R=301,L]
+RewriteRule ^contact\.html$ kontakt/ [R=301,L]
+RewriteRule ^contact/?$ kontakt/ [R=301,L]

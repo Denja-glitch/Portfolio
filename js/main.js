@@ -11,6 +11,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   revealElements.forEach((element) => revealObserver.observe(element));
 
+  const contactClock = document.querySelector('[data-contact-clock]');
+  if (contactClock) {
+    const days = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA'];
+    const pad = (value) => String(value).padStart(2, '0');
+    const dayNode = contactClock.querySelector('[data-clock-day]');
+    const hoursNode = contactClock.querySelector('[data-clock-hours]');
+    const minutesNode = contactClock.querySelector('[data-clock-minutes]');
+    const secondsNode = contactClock.querySelector('[data-clock-seconds]');
+    const tick = () => {
+      const now = new Date();
+      dayNode.textContent = days[now.getDay()];
+      hoursNode.textContent = pad(now.getHours());
+      minutesNode.textContent = pad(now.getMinutes());
+      secondsNode.textContent = pad(now.getSeconds());
+    };
+    tick();
+    window.setInterval(tick, 1000);
+  }
+
   const lightbox = document.querySelector('[data-lightbox-dialog]');
   const lightboxTriggers = document.querySelectorAll('[data-lightbox]');
   if (lightbox && lightboxTriggers.length) {
@@ -18,7 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const stillsContainer = lightbox.querySelector('[data-lightbox-stills]');
     const titleElement = lightbox.querySelector('[data-lightbox-title]');
     const descriptionElement = lightbox.querySelector('[data-lightbox-description]');
+    const stillViewer = lightbox.querySelector('[data-still-viewer]');
+    const stillImage = lightbox.querySelector('[data-still-image]');
     let activeTrigger;
+    let activeStills = [];
+    let stillIndex = 0;
     let closeTimer;
 
     const youtubeId = (src) => {
@@ -101,8 +124,18 @@ document.addEventListener('DOMContentLoaded', () => {
         featureContainer.append(createMedia(slide, projectTitle, index === 0));
       });
 
-      stills.forEach((slide) => stillsContainer.append(createMedia(slide, projectTitle, false)));
+      stills.forEach((slide, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'lightbox__still';
+        button.setAttribute('aria-label', slide.caption ? `${slide.caption} vergrößern` : 'Still vergrößern');
+        button.append(createMedia(slide, projectTitle, false));
+        button.addEventListener('click', () => openStillViewer(index));
+        stillsContainer.append(button);
+      });
       stillsContainer.hidden = !stills.length;
+      activeStills = stills;
+      stillIndex = 0;
 
       titleElement.textContent = projectTitle;
       const description = copy?.textContent.trim() || features[0]?.caption || '';
@@ -111,8 +144,29 @@ document.addEventListener('DOMContentLoaded', () => {
       lightbox.querySelector('.lightbox__panel').scrollTop = 0;
     };
 
+    const showStill = (index) => {
+      if (!activeStills.length) return;
+      stillIndex = (index + activeStills.length) % activeStills.length;
+      const slide = activeStills[stillIndex];
+      stillImage.src = slide.src;
+      stillImage.alt = slide.caption || titleElement.textContent;
+    };
+
+    const openStillViewer = (index) => {
+      showStill(index);
+      stillViewer.classList.add('is-open');
+      stillViewer.setAttribute('aria-hidden', 'false');
+      stillViewer.querySelector('[data-still-close]').focus();
+    };
+
+    const closeStillViewer = () => {
+      stillViewer.classList.remove('is-open');
+      stillViewer.setAttribute('aria-hidden', 'true');
+    };
+
     const openLightbox = (trigger) => {
       window.clearTimeout(closeTimer);
+      closeStillViewer();
       activeTrigger = trigger;
       renderProject(trigger);
       lightbox.classList.add('is-open');
@@ -122,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const closeLightbox = () => {
+      closeStillViewer();
       lightbox.classList.remove('is-open');
       lightbox.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('is-lightbox-open');
@@ -130,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lightbox.classList.contains('is-open')) return;
         featureContainer.replaceChildren();
         stillsContainer.replaceChildren();
+        stillImage.removeAttribute('src');
         activeTrigger?.focus();
       }, 850);
     };
@@ -141,9 +197,21 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     lightbox.querySelectorAll('[data-lightbox-close]').forEach((closeButton) => closeButton.addEventListener('click', closeLightbox));
+    stillViewer.querySelector('[data-still-close]').addEventListener('click', (event) => {
+      event.stopPropagation();
+      closeStillViewer();
+    });
+    stillImage.addEventListener('click', () => showStill(stillIndex + 1));
     document.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
-      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'Escape') {
+        if (stillViewer.classList.contains('is-open')) closeStillViewer();
+        else closeLightbox();
+        return;
+      }
+      if (!stillViewer.classList.contains('is-open')) return;
+      if (event.key === 'ArrowRight') showStill(stillIndex + 1);
+      if (event.key === 'ArrowLeft') showStill(stillIndex - 1);
     });
   }
 

@@ -32,6 +32,7 @@ button { color: inherit; font: inherit; }
 .wordmark span, .footer-mail span { color: var(--accent); }
 .main-nav { display: flex; gap: 1.8rem; margin-left: 8rem; }
 .nav-link { color: rgba(17, 17, 15, .7); font-size: .7rem; letter-spacing: .09em; position: relative; text-transform: uppercase; }
+.nav-link--ghost { pointer-events: none; visibility: hidden; }
 .site-header--overlay .nav-link, .site-header--overlay .header-contact { color: rgba(255,255,255,.8); }
 .nav-link::after { background: currentColor; bottom: -.42rem; content: ''; height: 1px; left: 0; position: absolute; transform: scaleX(0); transform-origin: right; transition: transform .4s var(--ease); width: 100%; }
 .nav-link:hover::after, .nav-link.is-active::after { transform: scaleX(1); transform-origin: left; }

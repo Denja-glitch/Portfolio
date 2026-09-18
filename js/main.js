@@ -14,14 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const lightbox = document.querySelector('[data-lightbox-dialog]');
   const lightboxTriggers = document.querySelectorAll('[data-lightbox]');
   if (lightbox && lightboxTriggers.length) {
-    const mediaContainer = lightbox.querySelector('[data-lightbox-media]');
+    const featureContainer = lightbox.querySelector('[data-lightbox-feature]');
+    const stillsContainer = lightbox.querySelector('[data-lightbox-stills]');
     const titleElement = lightbox.querySelector('[data-lightbox-title]');
     const descriptionElement = lightbox.querySelector('[data-lightbox-description]');
-    const countElement = lightbox.querySelector('[data-lightbox-count]');
-    const previousButton = lightbox.querySelector('[data-lightbox-prev]');
-    const nextButton = lightbox.querySelector('[data-lightbox-next]');
-    let activeSlides = [];
-    let activeIndex = 0;
     let activeTrigger;
     let closeTimer;
 
@@ -36,9 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return 'image';
     };
 
-    const mediaUrl = (src, type) => {
+    const mediaUrl = (src, type, autoplay = false) => {
       if (type !== 'youtube') return src;
-      return `https://www.youtube.com/embed/${youtubeId(src)}?autoplay=1`;
+      const params = new URLSearchParams({ mute: '1' });
+      if (autoplay) params.set('autoplay', '1');
+      return `https://www.youtube.com/embed/${youtubeId(src)}?${params}`;
     };
 
     const parseSlides = (trigger) => {
@@ -58,21 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const caption = captions.some(Boolean)
           ? (captions[index] || '')
           : (index === 0 ? (trigger.dataset.description || '') : '');
-        return { src: mediaUrl(src, type), type, caption };
+        return { src, type, caption };
       });
     };
 
-    const renderMedia = () => {
-      const trigger = activeTrigger;
-      const slide = activeSlides[activeIndex];
-      const projectTitle = trigger.closest('.project-card').querySelector('h3').textContent;
-      mediaContainer.replaceChildren();
-      if (!slide) return;
+    const isVideoSlide = (slide) => slide.type === 'youtube' || slide.type === 'video';
 
+    const createMedia = (slide, projectTitle, autoplay) => {
       const isEmbeddedVideo = slide.type === 'youtube';
       const isVideo = slide.type === 'video';
       const media = document.createElement(isEmbeddedVideo ? 'iframe' : (isVideo ? 'video' : 'img'));
-      media.src = slide.src;
+      media.src = mediaUrl(slide.src, slide.type, autoplay);
       if (isEmbeddedVideo) {
         media.title = `${projectTitle} abspielen`;
         media.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -80,26 +74,47 @@ document.addEventListener('DOMContentLoaded', () => {
         media.referrerPolicy = 'strict-origin-when-cross-origin';
       } else if (isVideo) {
         media.controls = true;
-        media.autoplay = true;
+        media.muted = true;
+        media.defaultMuted = true;
+        media.setAttribute('muted', '');
+        media.autoplay = autoplay;
         media.playsInline = true;
       } else {
-        media.alt = `${projectTitle} – ${activeIndex + 1}`;
+        media.alt = slide.caption || projectTitle;
       }
-      mediaContainer.append(media);
+      return media;
+    };
+
+    const renderProject = (trigger) => {
+      const card = trigger.closest('.project-card');
+      const projectTitle = card.querySelector('h3').textContent;
+      const copy = card.querySelector('.project-card__description');
+      const slides = parseSlides(trigger);
+      const videos = slides.filter(isVideoSlide);
+      const images = slides.filter((slide) => !isVideoSlide(slide));
+      const features = videos.length ? videos : images.slice(0, 1);
+      const stills = videos.length ? images : images.slice(1);
+
+      featureContainer.replaceChildren();
+      stillsContainer.replaceChildren();
+      features.forEach((slide, index) => {
+        featureContainer.append(createMedia(slide, projectTitle, index === 0));
+      });
+
+      stills.forEach((slide) => stillsContainer.append(createMedia(slide, projectTitle, false)));
+      stillsContainer.hidden = !stills.length;
+
       titleElement.textContent = projectTitle;
-      descriptionElement.textContent = slide.caption;
-      descriptionElement.hidden = !slide.caption;
-      countElement.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(activeSlides.length).padStart(2, '0')}`;
-      previousButton.disabled = activeSlides.length < 2;
-      nextButton.disabled = activeSlides.length < 2;
+      const description = copy?.textContent.trim() || features[0]?.caption || '';
+      descriptionElement.textContent = description;
+      descriptionElement.hidden = !description;
+      lightbox.querySelector('.lightbox__panel').scrollTop = 0;
     };
 
     const openLightbox = (trigger) => {
       window.clearTimeout(closeTimer);
       activeTrigger = trigger;
-      activeSlides = parseSlides(trigger);
-      activeIndex = 0;
-      renderMedia();
+      renderProject(trigger);
       lightbox.classList.add('is-open');
       lightbox.setAttribute('aria-hidden', 'false');
       document.body.classList.add('is-lightbox-open');
@@ -113,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
       window.clearTimeout(closeTimer);
       closeTimer = window.setTimeout(() => {
         if (lightbox.classList.contains('is-open')) return;
-        mediaContainer.replaceChildren();
+        featureContainer.replaceChildren();
+        stillsContainer.replaceChildren();
         activeTrigger?.focus();
       }, 850);
     };
@@ -125,19 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     lightbox.querySelectorAll('[data-lightbox-close]').forEach((closeButton) => closeButton.addEventListener('click', closeLightbox));
-    previousButton.addEventListener('click', () => {
-      activeIndex = (activeIndex - 1 + activeSlides.length) % activeSlides.length;
-      renderMedia();
-    });
-    nextButton.addEventListener('click', () => {
-      activeIndex = (activeIndex + 1) % activeSlides.length;
-      renderMedia();
-    });
     document.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
       if (event.key === 'Escape') closeLightbox();
-      if (event.key === 'ArrowLeft') previousButton.click();
-      if (event.key === 'ArrowRight') nextButton.click();
     });
   }
 
@@ -181,6 +187,103 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       updateHeroScroll();
       window.addEventListener('scroll', updateHeroScroll, { passive: true });
+    }
+  }
+
+  const errorPanel = document.querySelector('.error-panel');
+  const moka = document.querySelector('[data-moka]');
+  if (errorPanel) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const openPanel = () => errorPanel.classList.add('is-open');
+    if (reduceMotion) openPanel();
+    else window.requestAnimationFrame(() => window.requestAnimationFrame(openPanel));
+
+    if (moka) {
+      const status = moka.querySelector('[data-moka-status]');
+      const toggle = moka.querySelector('[data-moka-toggle]');
+      const windowStart = 5200;
+      const windowEnd = 7000;
+      const burntAt = 8800;
+      let frame = 0;
+      let startedAt = 0;
+      let brewing = false;
+
+      const setLevel = (elapsed) => {
+        let level = 0;
+        if (elapsed < 2800) level = (elapsed / 2800) * .12;
+        else if (elapsed < windowStart) level = .12 + ((elapsed - 2800) / (windowStart - 2800)) * .7;
+        else if (elapsed < windowEnd) level = .82 + ((elapsed - windowStart) / (windowEnd - windowStart)) * .12;
+        else level = .94 + ((elapsed - windowEnd) / 1800) * .26;
+        moka.style.setProperty('--moka-level', Math.min(level, 1.18).toFixed(3));
+      };
+
+      const stopBrew = () => {
+        brewing = false;
+        window.cancelAnimationFrame(frame);
+      };
+
+      const finish = (result) => {
+        stopBrew();
+        moka.dataset.state = result;
+        status.textContent = {
+          early: 'Zu früh. Noch zu dünn.',
+          good: 'Genau. Der Moment.',
+          late: 'Zu spät. Sie ist übergekocht.',
+        }[result];
+        toggle.textContent = 'Noch einmal';
+      };
+
+      const tick = (now) => {
+        if (!brewing) return;
+        const elapsed = now - startedAt;
+        setLevel(elapsed);
+        if (elapsed < 2200) {
+          moka.dataset.state = 'heat';
+          status.textContent = 'Es wird heiss.';
+        } else if (elapsed < windowStart) {
+          moka.dataset.state = 'rise';
+          status.textContent = 'Der Kaffee steigt.';
+        } else if (elapsed < windowEnd) {
+          moka.dataset.state = 'window';
+          status.textContent = 'Jetzt.';
+        } else if (elapsed < burntAt) {
+          moka.dataset.state = 'overflow';
+          status.textContent = 'Sie kocht über.';
+        } else {
+          finish('late');
+          return;
+        }
+        frame = window.requestAnimationFrame(tick);
+      };
+
+      const startBrew = () => {
+        stopBrew();
+        brewing = true;
+        startedAt = performance.now();
+        moka.dataset.state = 'heat';
+        status.textContent = 'Der Herd ist an.';
+        toggle.textContent = 'Herd aus';
+        frame = window.requestAnimationFrame(tick);
+      };
+
+      toggle.addEventListener('click', () => {
+        if (!brewing) {
+          startBrew();
+          return;
+        }
+        const elapsed = performance.now() - startedAt;
+        if (elapsed < windowStart) finish('early');
+        else if (elapsed < windowEnd) finish('good');
+        else finish('late');
+      });
+
+      if (reduceMotion) {
+        moka.dataset.state = 'idle';
+        status.textContent = 'Der Herd bleibt aus.';
+        toggle.hidden = true;
+      } else {
+        window.setTimeout(startBrew, 1600);
+      }
     }
   }
 

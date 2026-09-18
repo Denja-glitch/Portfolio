@@ -83,12 +83,21 @@ em { font-style: italic; }
 .button span { font-size: 1rem; }
 
 .statement { padding-bottom: clamp(5.5rem, 10vw, 8.5rem); padding-top: clamp(5rem, 10vw, 8rem); }
+.statement .section-heading { margin-bottom: .85rem; }
 .section-label { color: var(--muted); }
-.statement__title { font-family: var(--display); font-size: clamp(2.6rem, 6.4vw, 6.2rem); font-weight: 400; letter-spacing: -.09em; line-height: .9; margin: clamp(2.4rem, 5.5vw, 4rem) 0 0 auto; text-align: right; }
-.statement__title em { color: var(--accent); }
-.statement__copy { color: var(--muted); line-height: 1.65; margin: 1.6rem 0 0; max-width: 22rem; }
-.statement__copy p { margin: 0; }
-.statement__copy .text-link { margin-top: 1.35rem; }
+.statement__copy { color: var(--muted); line-height: 1.65; margin: 0; max-width: 28rem; }
+.statement .text-link { margin-top: 1.15rem; }
+.statement__title { font-family: var(--display); font-size: clamp(2.6rem, 6.4vw, 6.2rem); font-weight: 400; letter-spacing: -.09em; line-height: .9; margin: clamp(4.75rem, 11vw, 8rem) 0 0; text-align: center; }
+.statement__title em { color: inherit; font-style: italic; }
+.film-quotes { display: grid; grid-template-columns: repeat(12, 1fr); margin-top: clamp(3.25rem, 7.5vw, 5.75rem); }
+.film-quotes figure { margin: 0; }
+.film-quotes figure:nth-child(1) { grid-column: 1 / span 4; }
+.film-quotes figure:nth-child(2) { grid-column: 7 / -1; text-align: right; }
+.film-quotes figure:nth-child(3) { grid-column: 3 / span 6; margin-top: clamp(2.75rem, 6.5vw, 4.75rem); }
+.film-quotes blockquote { color: var(--ink); font-family: var(--display); font-size: clamp(1.05rem, 1.8vw, 1.28rem); font-style: italic; font-weight: 400; letter-spacing: -.035em; line-height: 1.4; margin: 0; }
+.film-quotes figure:nth-child(2) blockquote { font-size: clamp(1.28rem, 2.5vw, 1.9rem); letter-spacing: -.05em; line-height: 1.22; margin-left: auto; max-width: 22rem; }
+.film-quotes figure:nth-child(2) blockquote::before { color: var(--accent); content: '«'; display: block; font-size: .72em; line-height: 1; margin-bottom: .45rem; }
+.film-quotes figcaption { color: var(--muted); font-size: .62rem; letter-spacing: .12em; margin-top: .85rem; text-transform: uppercase; }
 .text-link { border-bottom: 1px solid var(--ink); display: inline-block; font-size: .7rem; margin-top: 1rem; padding-bottom: .5rem; text-transform: uppercase; }
 
 .instagram { padding-bottom: 1.5rem; padding-top: 0; }
@@ -447,7 +456,11 @@ html:has(.contact-page) { background: #efece6; }
   .hero__content { max-width: 100%; padding-bottom: 5.25rem; }
   .hero__meta { bottom: 1.5rem; left: var(--page-pad); right: auto; }
   .statement__title { font-size: clamp(2.15rem, 11vw, 3.4rem); }
-  .statement__copy { margin: 1.85rem 0 0; }
+  .film-quotes { display: flex; flex-direction: column; gap: 2.25rem; }
+  .film-quotes figure { grid-column: auto; margin-top: 0; max-width: 22rem; }
+  .film-quotes figure:nth-child(2) { margin-left: auto; }
+  .film-quotes figure:nth-child(3) { margin-left: 1.75rem; }
+  .film-quotes figure:nth-child(2) blockquote { font-size: clamp(1.2rem, 6.4vw, 1.55rem); }
   .section-heading { align-items: start; display: block; }
   .section-heading .text-link { margin-top: 1.5rem; }
   .instagram-grid { gap: .35rem; }

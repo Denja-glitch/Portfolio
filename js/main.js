@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeGallery = [];
     let activeIndex = 0;
     let activeTrigger;
+    let closeTimer;
 
     const renderMedia = () => {
       const trigger = activeTrigger;
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const openLightbox = (trigger) => {
+      window.clearTimeout(closeTimer);
       activeTrigger = trigger;
       activeGallery = trigger.dataset.gallery.split('|');
       activeIndex = 0;
@@ -67,9 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
       lightbox.setAttribute('aria-hidden', 'true');
-      mediaContainer.replaceChildren();
       document.body.classList.remove('is-lightbox-open');
-      activeTrigger.focus();
+      window.clearTimeout(closeTimer);
+      closeTimer = window.setTimeout(() => {
+        if (lightbox.classList.contains('is-open')) return;
+        mediaContainer.replaceChildren();
+        activeTrigger?.focus();
+      }, 850);
     };
 
     lightboxTriggers.forEach((trigger) => {

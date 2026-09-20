@@ -75,6 +75,7 @@ em { font-style: italic; }
   gap: clamp(2rem, 5vw, 6rem);
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
   padding-bottom: var(--home-gap);
+  padding-right: calc(var(--page-pad) + clamp(2.75rem, 7vw, 8rem));
   padding-top: var(--home-gap);
 }
 .statement .section-heading { margin-bottom: 0; }
@@ -493,9 +494,9 @@ html:has(.contact-page) { background: #efece6; }
   .hero h1 { font-size: clamp(2.6rem, 13vw, 4.1rem); }
   .hero__content { padding-bottom: 5.25rem; }
   .hero__meta { padding-bottom: 5.25rem; }
-  .statement { display: flex; flex-direction: column; gap: 0; }
+  .statement { display: flex; flex-direction: column; gap: 0; padding-right: var(--page-pad); }
   .statement__copy { max-width: 28rem; }
-  .statement__portrait { margin-left: auto; margin-top: 2.25rem; max-width: 22rem; width: 100%; }
+  .statement__portrait { margin: 2.25rem 0 0 auto; max-width: 22rem; width: 100%; }
   .statement__title { font-size: clamp(2.15rem, 11vw, 3.4rem); }
   .film-quotes { display: flex; flex-direction: column; gap: 2.25rem; max-width: 24rem; }
   .film-quotes figure { grid-column: auto; margin-top: 0; max-width: none; padding-right: 0; }

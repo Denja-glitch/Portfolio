@@ -399,11 +399,11 @@ html:has(.contact-page) { background: #efece6; }
   object-fit: contain;
 }
 .lightbox.is-mixed .lightbox__stills {
-  align-items: start;
-  grid-template-columns: repeat(5, 1fr);
+  gap: .4rem;
+  grid-template-columns: repeat(3, 1fr);
 }
 .lightbox.is-mixed .lightbox__still img {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 .still-viewer { align-items: center; background: var(--white); display: flex; inset: 0; justify-content: center; opacity: 0; pointer-events: none; position: absolute; transition: opacity .45s var(--ease), visibility .45s var(--ease); visibility: hidden; z-index: 5; }

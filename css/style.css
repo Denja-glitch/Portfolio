@@ -312,6 +312,9 @@ html:has(.contact-page) { background: #efece6; }
 .project-card.is-filtering { opacity: 0; transform: translateY(1rem); }
 .project-card.is-hidden { display: none; }
 .project-card--wide { grid-column: span 6; }
+@media (min-width: 701px) {
+  .project-card--new-row { grid-column: 1 / span 6; }
+}
 .project-card:nth-child(even) { margin-top: clamp(2rem, 3.8vw, 3.5rem); }
 .project-grid.is-filtered .project-card,
 .project-grid.is-filtered .project-card:nth-child(even) {
@@ -320,8 +323,9 @@ html:has(.contact-page) { background: #efece6; }
 }
 .project-card__media { background: #d8d4cc; display: block; overflow: hidden; position: relative; }
 .project-card--wide .project-card__media { aspect-ratio: 16 / 9; }
-.project-card[data-category="photography"] { grid-column: span 6; }
-.project-card[data-category="photography"] .project-card__media { aspect-ratio: 4 / 5; }
+.project-card[data-category~="photography"] { grid-column: span 4; }
+.project-card[data-category~="photography"] .project-card__media { aspect-ratio: 4 / 5; }
+.project-grid.is-filtered .project-card[data-category~="photography"] { grid-column: span 4; }
 .split-title > span,
 .split-title > em { display: block; }
 .project-card__media img { height: 100%; object-fit: cover; transition: transform 1.35s var(--ease), filter 1.35s var(--ease); width: 100%; }
@@ -335,7 +339,17 @@ html:has(.contact-page) { background: #efece6; }
 .project-card__meta { align-items: end; display: flex; justify-content: space-between; gap: 1rem; padding-top: 1.25rem; }
 .project-card__meta h3 { font-family: var(--display); font-size: clamp(1rem, 1.5vw, 1.2rem); font-weight: 500; letter-spacing: -.05em; line-height: 1.08; margin: 0; }
 .project-card__meta span { color: var(--muted); font-size: .62rem; letter-spacing: .09em; text-transform: uppercase; }
-.project-card__description { color: var(--muted); font-size: .78rem; line-height: 1.6; margin: .55rem 0 0; max-width: 28rem; }
+.project-card__description {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+}
 
 .lightbox { align-items: center; display: flex; inset: 0; justify-content: center; opacity: 0; padding: 1.5rem; pointer-events: none; position: fixed; transition: opacity .85s var(--ease); z-index: 20; }
 .lightbox.is-open { opacity: 1; pointer-events: auto; }
@@ -357,7 +371,9 @@ html:has(.contact-page) { background: #efece6; }
 .lightbox__footer { padding: 1.35rem 2.5rem 0; }
 .lightbox__eyebrow { color: var(--muted); font-size: .62rem; letter-spacing: .12em; margin: 0 0 .35rem; text-transform: uppercase; }
 .lightbox__footer h2 { font-family: var(--display); font-size: clamp(1.4rem, 2vw, 1.8rem); font-weight: 400; letter-spacing: -.06em; margin: 0; }
-.lightbox__description { color: var(--muted); font-size: .78rem; line-height: 1.55; margin: .5rem 0 0; max-width: 38rem; }
+.lightbox__description { color: var(--muted); font-size: .78rem; line-height: 1.55; margin: .5rem 0 0; max-width: none; width: 100%; }
+.lightbox__description p { margin: 0; }
+.lightbox__description p + p { margin-top: .7em; }
 .lightbox__stills { display: grid; gap: .55rem; grid-template-columns: repeat(3, 1fr); padding: 5.5rem 2.5rem 2.75rem; }
 .lightbox__stills[hidden] { display: none; }
 .lightbox__still { background: none; border: 0; cursor: pointer; display: block; padding: 0; width: 100%; }
@@ -382,6 +398,14 @@ html:has(.contact-page) { background: #efece6; }
   aspect-ratio: auto;
   height: auto;
   object-fit: contain;
+}
+.lightbox.is-mixed .lightbox__stills {
+  align-items: start;
+  grid-template-columns: repeat(5, 1fr);
+}
+.lightbox.is-mixed .lightbox__still img {
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
 }
 .still-viewer { align-items: center; background: var(--white); display: flex; inset: 0; justify-content: center; opacity: 0; pointer-events: none; position: absolute; transition: opacity .45s var(--ease), visibility .45s var(--ease); visibility: hidden; z-index: 5; }
 .still-viewer.is-open { opacity: 1; pointer-events: auto; visibility: visible; }
@@ -453,13 +477,14 @@ html:has(.contact-page) { background: #efece6; }
 .home-work.reveal.is-visible:nth-child(3) { transition-delay: .16s; }
 @media (max-width: 960px) {
   .project-grid { gap: clamp(4rem, 7vw, 5.5rem) clamp(1.25rem, 2.5vw, 2rem); }
-  .project-card[data-category="photography"] { grid-column: span 6; }
+  .project-card[data-category~="photography"] { grid-column: span 5; }
   .project-card:nth-child(even) { margin-top: 1.75rem; }
   .project-grid.is-filtered .project-card,
   .project-grid.is-filtered .project-card:nth-child(even) {
     grid-column: span 6;
     margin-top: 0;
   }
+  .project-grid.is-filtered .project-card[data-category~="photography"] { grid-column: span 5; }
 }
 
 @media (max-width: 700px) {
@@ -500,13 +525,12 @@ html:has(.contact-page) { background: #efece6; }
   .filter-bar { gap: 1.4rem; margin-bottom: 3.25rem; padding: 1.15rem 0; }
   .project-grid { gap: 3.75rem 1.15rem; }
   .project-card--wide { grid-column: span 12; }
-  .project-card[data-category="photography"] { grid-column: span 6; }
+  .project-card[data-category~="photography"] { grid-column: span 6; }
   .project-card:nth-child(even) { margin-top: 0; }
   .project-grid.is-filtered .project-card--wide { grid-column: span 12; }
-  .project-grid.is-filtered .project-card[data-category="photography"] { grid-column: span 6; }
+  .project-grid.is-filtered .project-card[data-category~="photography"] { grid-column: span 6; }
   .project-card__meta { display: block; }
   .project-card__meta span { display: block; margin-top: .25rem; }
-  .project-card__description { font-size: .75rem; }
   .lightbox { padding: .75rem; }
   .lightbox__panel { max-height: calc(100vh - 1.5rem); }
   .lightbox__feature { padding: 1.75rem 1rem 0; }
@@ -517,6 +541,7 @@ html:has(.contact-page) { background: #efece6; }
   .lightbox__stills { gap: .35rem; grid-template-columns: repeat(2, 1fr); padding: 3rem 1rem 1.75rem; }
   .lightbox.is-photography .lightbox__feature img { height: min(68vh, 36rem); }
   .lightbox.is-photography .lightbox__stills { grid-template-columns: repeat(2, 1fr); }
+  .lightbox.is-mixed .lightbox__stills { grid-template-columns: repeat(2, 1fr); }
   .error-panel { padding: 1.4rem; }
   .error-title { font-size: clamp(2.55rem, 15vw, 3.8rem); }
   .moka { bottom: 7.5rem; }

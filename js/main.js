@@ -49,17 +49,37 @@ document.addEventListener('DOMContentLoaded', () => {
       return match ? match[1] : null;
     };
 
+    const vimeoParts = (src) => {
+      const idMatch = src.match(/(?:player\.vimeo\.com\/video\/|vimeo\.com\/)(\d+)/);
+      if (!idMatch) return null;
+      const hash = src.match(/[?&]h=([a-f0-9]+)/i);
+      return { id: idMatch[1], hash: hash ? hash[1] : '' };
+    };
+
     const detectType = (src) => {
       if (youtubeId(src)) return 'youtube';
+      if (vimeoParts(src)) return 'vimeo';
       if (/\.(mp4|webm|mov)(\?|$)/i.test(src)) return 'video';
       return 'image';
     };
 
     const mediaUrl = (src, type, autoplay = false) => {
-      if (type !== 'youtube') return src;
-      const params = new URLSearchParams({ mute: '1' });
-      if (autoplay) params.set('autoplay', '1');
-      return `https://www.youtube.com/embed/${youtubeId(src)}?${params}`;
+      if (type === 'youtube') {
+        const params = new URLSearchParams({ mute: '1' });
+        if (autoplay) params.set('autoplay', '1');
+        return `https://www.youtube.com/embed/${youtubeId(src)}?${params}`;
+      }
+      if (type === 'vimeo') {
+        const { id, hash } = vimeoParts(src);
+        const params = new URLSearchParams({ dnt: '1' });
+        if (hash) params.set('h', hash);
+        if (autoplay) {
+          params.set('autoplay', '1');
+          params.set('muted', '1');
+        }
+        return `https://player.vimeo.com/video/${id}?${params}`;
+      }
+      return src;
     };
 
     const parseSlides = (trigger) => {
@@ -83,16 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
-    const isVideoSlide = (slide) => slide.type === 'youtube' || slide.type === 'video';
+    const isVideoSlide = (slide) => slide.type === 'youtube' || slide.type === 'vimeo' || slide.type === 'video';
 
     const createMedia = (slide, projectTitle, autoplay) => {
-      const isEmbeddedVideo = slide.type === 'youtube';
+      const isEmbeddedVideo = slide.type === 'youtube' || slide.type === 'vimeo';
       const isVideo = slide.type === 'video';
       const media = document.createElement(isEmbeddedVideo ? 'iframe' : (isVideo ? 'video' : 'img'));
       media.src = mediaUrl(slide.src, slide.type, autoplay);
       if (isEmbeddedVideo) {
         media.title = `${projectTitle} abspielen`;
-        media.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        media.allow = 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share';
         media.allowFullscreen = true;
         media.referrerPolicy = 'strict-origin-when-cross-origin';
       } else if (isVideo) {
@@ -116,14 +136,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const videos = slides.filter(isVideoSlide);
       const images = slides.filter((slide) => !isVideoSlide(slide));
       const isPhotography = !videos.length;
+      const isMixed = videos.length > 0 && images.length > 0;
       const features = videos.length ? videos : images.slice(0, 1);
       const stills = videos.length ? images : images.slice(1);
 
       lightbox.classList.toggle('is-photography', isPhotography);
+      lightbox.classList.toggle('is-mixed', isMixed);
       featureContainer.replaceChildren();
       stillsContainer.replaceChildren();
       features.forEach((slide, index) => {
-        featureContainer.append(createMedia(slide, projectTitle, index === 0));
+        featureContainer.append(createMedia(slide, projectTitle, index === 0 && slide.type === 'youtube'));
       });
 
       if (isPhotography) {
@@ -144,9 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
       stillIndex = 0;
 
       titleElement.textContent = projectTitle;
-      const description = copy?.textContent.trim() || features[0]?.caption || '';
-      descriptionElement.textContent = description;
-      descriptionElement.hidden = !description;
+      const descriptionHtml = copy?.innerHTML.trim() || '';
+      const descriptionText = copy?.textContent.trim() || features[0]?.caption || '';
+      if (copy?.querySelector('p')) descriptionElement.innerHTML = descriptionHtml;
+      else descriptionElement.textContent = descriptionText;
+      descriptionElement.hidden = !descriptionText;
       lightbox.querySelector('.lightbox__panel').scrollTop = 0;
     };
 
@@ -369,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filterButtons.forEach((button) => {
       button.addEventListener('click', () => {
-        const selectedFilter = button.dataset.filter;
+        const selectedFilter = button.getAttribute('data-filter');
 
         filterButtons.forEach((filterButton) => {
           const isActive = filterButton === button;
@@ -383,9 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filterTimer = window.setTimeout(() => {
           projectCards.forEach((card) => {
-            const shouldShow = selectedFilter === 'all' || card.dataset.category === selectedFilter;
+            const categories = (card.getAttribute('data-category') || '').trim().split(/\s+/).filter(Boolean);
+            const shouldShow = selectedFilter === 'all' || categories.includes(selectedFilter);
             card.classList.toggle('is-hidden', !shouldShow);
-            if (shouldShow) window.requestAnimationFrame(() => card.classList.remove('is-filtering'));
+            card.classList.remove('is-filtering');
           });
         }, 300);
       });

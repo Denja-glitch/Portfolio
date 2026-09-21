@@ -590,7 +590,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const titleNode = reelFeed.querySelector('#reel-feed-title');
     const handleNode = reelFeed.querySelector('[data-reel-handle]');
-    const closeButton = reelFeed.querySelector('[data-reel-close]');
+    const closeButton = reelFeed.querySelector('.reel-feed__close');
+    const reelPanel = reelFeed.querySelector('[data-reel-panel]');
     const progressNode = reelFeed.querySelector('[data-reel-progress]');
     const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -641,17 +642,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateReelScroll = () => {
       reelScrollTick = 0;
-      const viewH = reelFeed.clientHeight;
-      const maxScroll = Math.max(1, reelFeed.scrollHeight - viewH);
-      const progress = Math.max(0, Math.min(1, reelFeed.scrollTop / maxScroll));
+      const scroller = reelPanel || reelFeed;
+      const viewH = scroller.clientHeight;
+      const maxScroll = Math.max(1, scroller.scrollHeight - viewH);
+      const progress = Math.max(0, Math.min(1, scroller.scrollTop / maxScroll));
       progressNode?.style.setProperty('--reel-progress', progress.toFixed(3));
       if (reduceMotion.matches) return;
 
+      const origin = scroller.getBoundingClientRect().top;
       const fadeStart = viewH * 0.94;
       const fadeEnd = viewH * 0.4;
       const span = fadeStart - fadeEnd;
       reelGrid.querySelectorAll('.reel-card').forEach((card) => {
-        const top = card.getBoundingClientRect().top;
+        const top = card.getBoundingClientRect().top - origin;
         let amount = (fadeStart - top) / span;
         amount = Math.max(0, Math.min(1, amount));
         amount *= amount * (3 - 2 * amount);
@@ -670,6 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('is-reel-feed-open');
       stopReels();
       reelObserver?.disconnect();
+      reelPanel?.removeEventListener('scroll', onReelScroll);
       reelFeed.removeEventListener('scroll', onReelScroll);
       window.cancelAnimationFrame(reelScrollTick);
       reelScrollTick = 0;
@@ -726,13 +730,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const openReelFeed = (feedId) => {
       renderReelFeed(feedId);
-      reelFeed.scrollTop = 0;
+      const scroller = reelPanel || reelFeed;
+      scroller.scrollTop = 0;
       reelFeed.classList.add('is-open');
       reelFeed.setAttribute('aria-hidden', 'false');
       document.body.classList.add('is-reel-feed-open');
       closeButton?.focus();
       reelObserver?.disconnect();
-      reelFeed.addEventListener('scroll', onReelScroll, { passive: true });
+      scroller.addEventListener('scroll', onReelScroll, { passive: true });
       updateReelScroll();
       window.requestAnimationFrame(updateReelScroll);
       if (canHover.matches) return;
@@ -742,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (entry.isIntersecting) playMuted(video);
           else stopMuted(video);
         });
-      }, { root: reelFeed, threshold: 0.45 });
+      }, { root: scroller, threshold: 0.45 });
       reelGrid.querySelectorAll('.reel-card').forEach((card) => reelObserver.observe(card));
     };
 
@@ -760,7 +765,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    closeButton?.addEventListener('click', closeReelFeed);
+    reelFeed.querySelectorAll('[data-reel-close]').forEach((el) => {
+      el.addEventListener('click', closeReelFeed);
+    });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && reelFeed.classList.contains('is-open')) closeReelFeed();
     });

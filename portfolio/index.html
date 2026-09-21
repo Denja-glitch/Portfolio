@@ -111,16 +111,17 @@
   </div>
 
   <div class="reel-feed" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="reel-feed-title">
-    <div class="reel-feed__bar">
-      <div>
+    <div class="reel-feed__backdrop" data-reel-close></div>
+    <div class="reel-feed__panel" role="document" data-reel-panel>
+      <button class="reel-feed__close" type="button" data-reel-close aria-label="Feed schliessen">×</button>
+      <div class="reel-feed__bar">
         <p class="reel-feed__eyebrow">Social Media</p>
         <h2 id="reel-feed-title">Embassy Kirchhofer Group</h2>
         <p class="reel-feed__handle" data-reel-handle>@embassy_jewel_ag · @kirchhofer_official</p>
       </div>
-      <button class="reel-feed__close" type="button" data-reel-close aria-label="Feed schliessen">×</button>
+      <div class="reel-feed__grid" data-reel-grid></div>
+      <div class="reel-feed__progress" data-reel-progress aria-hidden="true"></div>
     </div>
-    <div class="reel-feed__grid" data-reel-grid></div>
-    <div class="reel-feed__progress" data-reel-progress aria-hidden="true"></div>
   </div>
 
   <footer class="page-footer section-pad">

@@ -408,12 +408,140 @@ document.addEventListener('DOMContentLoaded', () => {
         filterTimer = window.setTimeout(() => {
           projectCards.forEach((card) => {
             const categories = (card.getAttribute('data-category') || '').trim().split(/\s+/).filter(Boolean);
-            const shouldShow = selectedFilter === 'all' || categories.includes(selectedFilter);
+            const isReel = categories.includes('reels');
+            const shouldShow = selectedFilter === 'social'
+              ? categories.includes('social') || isReel
+              : selectedFilter === 'all'
+                ? !isReel
+                : categories.includes(selectedFilter);
             card.classList.toggle('is-hidden', !shouldShow);
             card.classList.remove('is-filtering');
           });
         }, 300);
       });
+    });
+  }
+
+  const reelFeed = document.querySelector('.reel-feed');
+  const reelGrid = document.querySelector('[data-reel-grid]');
+  if (reelFeed && reelGrid) {
+    const reelFeeds = {
+      'embassy-kirchhofer': {
+        title: 'Embassy Kirchhofer Group',
+        handle: '@framesbydenja',
+        items: [
+          { poster: '../assets/images/Special_Edition_Hublot 4.jpg', src: '../assets/videos/reels/embassy-kirchhofer/hublot-special.mp4', title: 'Special Edition' },
+          { poster: '../assets/images/Hublot_7.jpg', src: '../assets/videos/reels/embassy-kirchhofer/hublot-zenith.mp4', title: 'Hublot & Zenith' },
+          { poster: '../assets/images/Bvlgari_Golf_Event_Marc.jpg', src: '../assets/videos/reels/embassy-kirchhofer/bvlgari-golf.mp4', title: 'Bvlgari Golf' },
+          { poster: '../assets/images/Still_Bvlgari_Start-2048x1152.jpg', src: '../assets/videos/reels/embassy-kirchhofer/bvlgari-recap.mp4', title: 'Event Recap' },
+          { poster: '../assets/images/Special_Edition_Hublot 6.jpg', src: '../assets/videos/reels/embassy-kirchhofer/winterlicht.mp4', title: 'Winterlicht' },
+          { poster: '../assets/images/Blancpain_Dark.png', src: '../assets/videos/reels/embassy-kirchhofer/blancpain.mp4', title: 'Blancpain' }
+        ]
+      }
+    };
+
+    const titleNode = reelFeed.querySelector('#reel-feed-title');
+    const handleNode = reelFeed.querySelector('[data-reel-handle]');
+    const closeButton = reelFeed.querySelector('[data-reel-close]');
+    let reelObserver;
+
+    const stopReels = () => {
+      reelGrid.querySelectorAll('video').forEach((video) => {
+        video.pause();
+        video.currentTime = 0;
+      });
+    };
+
+    const closeReelFeed = () => {
+      reelFeed.classList.remove('is-open');
+      reelFeed.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('is-reel-feed-open');
+      stopReels();
+      reelObserver?.disconnect();
+    };
+
+    const renderReelFeed = (feedId) => {
+      const feed = reelFeeds[feedId];
+      if (!feed) return;
+      if (titleNode) titleNode.textContent = feed.title;
+      if (handleNode) handleNode.textContent = feed.handle;
+      reelGrid.replaceChildren();
+
+      feed.items.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'reel-card';
+        const media = document.createElement('div');
+        media.className = 'reel-card__media';
+        const poster = document.createElement('img');
+        poster.src = item.poster;
+        poster.alt = item.title || feed.title;
+        poster.loading = 'lazy';
+        media.append(poster);
+
+        if (item.src) {
+          const video = document.createElement('video');
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.preload = 'none';
+          video.setAttribute('muted', '');
+          video.poster = item.poster;
+          const source = document.createElement('source');
+          source.src = item.src;
+          source.type = 'video/mp4';
+          video.append(source);
+          video.addEventListener('error', () => video.remove());
+          media.append(video);
+        }
+
+        const shade = document.createElement('div');
+        shade.className = 'reel-card__shade';
+        const handle = document.createElement('span');
+        handle.className = 'reel-card__handle';
+        handle.textContent = feed.handle;
+        const meta = document.createElement('div');
+        meta.className = 'reel-card__meta';
+        const tag = document.createElement('span');
+        tag.className = 'reel-card__tag';
+        tag.textContent = 'reel';
+        const title = document.createElement('span');
+        title.className = 'reel-card__title';
+        title.textContent = item.title || '';
+        meta.append(tag, title);
+        card.append(media, shade, handle, meta);
+        reelGrid.append(card);
+      });
+    };
+
+    const openReelFeed = (feedId) => {
+      renderReelFeed(feedId);
+      reelFeed.classList.add('is-open');
+      reelFeed.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('is-reel-feed-open');
+      closeButton?.focus();
+      reelObserver?.disconnect();
+      reelObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target.querySelector('video');
+          if (!video) return;
+          if (entry.isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        });
+      }, { threshold: 0.45 });
+      reelGrid.querySelectorAll('.reel-card').forEach((card) => reelObserver.observe(card));
+    };
+
+    document.querySelectorAll('[data-reel-feed]').forEach((trigger) => {
+      if (trigger === reelFeed) return;
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        openReelFeed(trigger.getAttribute('data-reel-feed'));
+      });
+    });
+
+    closeButton?.addEventListener('click', closeReelFeed);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && reelFeed.classList.contains('is-open')) closeReelFeed();
     });
   }
 });

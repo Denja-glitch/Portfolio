@@ -16,8 +16,9 @@
     <a class="wordmark" href="../" aria-label="Startseite">DA<span>.</span></a>
     <nav class="main-nav" aria-label="Hauptnavigation">
       <a class="nav-link" href="../">Home</a>
-      <a class="nav-link is-active" href="./" aria-current="page">Portfolio</a>
+      <a class="nav-link is-active" href="./" aria-current="page">Meine Arbeiten</a>
     </nav>
+    <a class="header-contact" href="../kontakt/">Let's Talk <span class="icon-arrow" aria-hidden="true"></span></a>
   </header>
 
   <main>
@@ -34,7 +35,7 @@
         <button class="filter-button" type="button" data-filter="storytelling" aria-pressed="false">Film <span>03</span></button>
         <button class="filter-button" type="button" data-filter="photography" aria-pressed="false">Fotografie <span>03</span></button>
         <button class="filter-button" type="button" data-filter="event" aria-pressed="false">Events <span>03</span></button>
-        <button class="filter-button" type="button" data-filter="social" aria-pressed="false">Social Media <span>02</span></button>
+        <button class="filter-button" type="button" data-filter="social" aria-pressed="false">Social Media <span>03</span></button>
       </div>
 
       <div class="project-grid">
@@ -84,6 +85,11 @@
           <div class="project-card__meta"><h3>Hublot &amp; Zenith</h3><span>Fotografie · Event</span></div>
           <p class="project-card__description">Für den gemeinsamen Event von Hublot und Zenith lag mein fotografischer Fokus auf der intimen Atmosphäre der Uhrenpräsentation. Die Bildserie fängt das Zusammenspiel von präziser Handwerkskunst und persönlicher Beratung ein – vom ersten Begutachten der Zeitmesser auf den eleganten Trays bis zum spürbaren Moment des Anprobierens. Gedämpftes Licht, feine Reflexionen und die ungeteilte Aufmerksamkeit für das Detail prägen diese visuelle Momentaufnahme.</p>
         </article>
+        <article class="project-card reveal is-hidden" data-category="reels">
+          <a href="#" class="project-card__media" data-reel-feed="embassy-kirchhofer" aria-label="Reel-Feed Embassy Kirchhofer Group öffnen"><img src="../assets/images/Special_Edition_Hublot 4.jpg" alt="Hublot Special Edition, Cover für den Reel-Feed der Embassy Kirchhofer Group" loading="lazy"><div class="project-card__overlay"><span>Feed ansehen <span class="icon-arrow" aria-hidden="true"></span></span></div></a>
+          <div class="project-card__meta"><h3>Embassy Kirchhofer Group</h3><span>Social · Reels</span></div>
+          <p class="project-card__description">Reels für die Kanäle der Embassy Kirchhofer Group – gebündelt als eigener Feed.</p>
+        </article>
       </div>
     </section>
   </main>
@@ -104,10 +110,22 @@
     </div>
   </div>
 
+  <div class="reel-feed" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="reel-feed-title">
+    <div class="reel-feed__bar">
+      <div>
+        <p class="reel-feed__eyebrow">Social Media</p>
+        <h2 id="reel-feed-title">Embassy Kirchhofer Group</h2>
+        <p class="reel-feed__handle" data-reel-handle>@framesbydenja</p>
+      </div>
+      <button class="reel-feed__close" type="button" data-reel-close aria-label="Feed schliessen">×</button>
+    </div>
+    <div class="reel-feed__grid" data-reel-grid></div>
+  </div>
+
   <footer class="page-footer section-pad">
     <div class="page-footer__top">
       <a class="wordmark" href="../" aria-label="Startseite">DA<span>.</span></a>
-      <a class="page-footer__cta" href="../kontakt/">Lass uns <em>reden</em> <span class="icon-arrow" aria-hidden="true"></span></a>
+      <a class="page-footer__cta" href="../kontakt/">Let's <em>Talk</em> <span class="icon-arrow" aria-hidden="true"></span></a>
       <p class="page-footer__copy">© 2026 Denja Amstutz</p>
     </div>
     <a class="page-footer__mark" href="../" aria-label="Startseite">Denja Amstutz<span>.</span></a>

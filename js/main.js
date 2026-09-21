@@ -409,11 +409,9 @@ document.addEventListener('DOMContentLoaded', () => {
           projectCards.forEach((card) => {
             const categories = (card.getAttribute('data-category') || '').trim().split(/\s+/).filter(Boolean);
             const isReel = categories.includes('reels');
-            const shouldShow = selectedFilter === 'social'
-              ? categories.includes('social') || isReel
-              : selectedFilter === 'all'
-                ? !isReel
-                : categories.includes(selectedFilter);
+            const shouldShow = selectedFilter === 'all'
+              || (selectedFilter === 'social' && (categories.includes('social') || isReel))
+              || categories.includes(selectedFilter);
             card.classList.toggle('is-hidden', !shouldShow);
             card.classList.remove('is-filtering');
           });
@@ -425,17 +423,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const reelFeed = document.querySelector('.reel-feed');
   const reelGrid = document.querySelector('[data-reel-grid]');
   if (reelFeed && reelGrid) {
+    const cloudinaryVideo = (file, version, title, handle) => ({
+      title,
+      handle,
+      poster: `https://res.cloudinary.com/zl2rykvk/video/upload/so_0,w_540,h_960,c_fill,f_jpg,q_auto/${file}.jpg`,
+      src: `https://res.cloudinary.com/zl2rykvk/video/upload/q_auto,w_720,f_mp4/v${version}/${file}.mp4`
+    });
+
     const reelFeeds = {
       'embassy-kirchhofer': {
         title: 'Embassy Kirchhofer Group',
-        handle: '@framesbydenja',
+        handle: '@embassy_jewel_ag',
+        handles: '@embassy_jewel_ag · @kirchhofer_official',
         items: [
-          { poster: '../assets/images/Special_Edition_Hublot 4.jpg', src: '../assets/videos/reels/embassy-kirchhofer/hublot-special.mp4', title: 'Special Edition' },
-          { poster: '../assets/images/Hublot_7.jpg', src: '../assets/videos/reels/embassy-kirchhofer/hublot-zenith.mp4', title: 'Hublot & Zenith' },
-          { poster: '../assets/images/Bvlgari_Golf_Event_Marc.jpg', src: '../assets/videos/reels/embassy-kirchhofer/bvlgari-golf.mp4', title: 'Bvlgari Golf' },
-          { poster: '../assets/images/Still_Bvlgari_Start-2048x1152.jpg', src: '../assets/videos/reels/embassy-kirchhofer/bvlgari-recap.mp4', title: 'Event Recap' },
-          { poster: '../assets/images/Special_Edition_Hublot 6.jpg', src: '../assets/videos/reels/embassy-kirchhofer/winterlicht.mp4', title: 'Winterlicht' },
-          { poster: '../assets/images/Blancpain_Dark.png', src: '../assets/videos/reels/embassy-kirchhofer/blancpain.mp4', title: 'Blancpain' }
+          cloudinaryVideo('video_26', '1789981743', 'Blancpain'),
+          cloudinaryVideo('video_25', '1789981744', 'Atelier'),
+          cloudinaryVideo('video_24', '1789981743', 'Van Cleef & Arpels'),
+          cloudinaryVideo('video', '1789981742', 'Boutique'),
+          cloudinaryVideo('video_20', '1789981739', 'Winter am See'),
+          cloudinaryVideo('video_16', '1789981740', 'Bvlgari'),
+          cloudinaryVideo('video_21', '1789981739', 'TAG Heuer'),
+          cloudinaryVideo('video_23', '1789981740', 'Unboxing'),
+          cloudinaryVideo('video_22', '1789981740', 'KKL Luzern'),
+          cloudinaryVideo('video_19', '1789981739', 'Afternoon Tea'),
+          cloudinaryVideo('video_17', '1789981738', 'Back to Basics'),
+          cloudinaryVideo('video_1', '1789981733', 'Bentley'),
+          cloudinaryVideo('video_3', '1789981734', 'Paris'),
+          cloudinaryVideo('video_2', '1789981735', 'Unterwegs'),
+          cloudinaryVideo('video_4', '1789981735', 'Café'),
+          cloudinaryVideo('video_5', '1789981735', 'Am Wasser'),
+          cloudinaryVideo('video_7', '1789981735', 'Serpenti'),
+          cloudinaryVideo('video_9', '1789981736', 'Apéro'),
+          cloudinaryVideo('video_8', '1789981736', 'Festtage'),
+          cloudinaryVideo('video_13', '1789981737', 'Schwanenplatz'),
+          cloudinaryVideo('video_11', '1789981736', 'Auf dem See'),
+          cloudinaryVideo('video_14', '1789981737', 'Zenith'),
+          cloudinaryVideo('video_18', '1789981739', 'Zenith Box'),
+          cloudinaryVideo('video_15', '1789981738', 'Bentayga'),
+          cloudinaryVideo('video_12', '1789981737', 'Nationalquai'),
+          cloudinaryVideo('video_10', '1789981736', 'Selection'),
+          cloudinaryVideo('video_6', '1789981735', 'Franck Muller'),
+          cloudinaryVideo('video_27', '1789982401', 'Hublot', '@kirchhofer_official')
         ]
       }
     };
@@ -443,13 +471,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleNode = reelFeed.querySelector('#reel-feed-title');
     const handleNode = reelFeed.querySelector('[data-reel-handle]');
     const closeButton = reelFeed.querySelector('[data-reel-close]');
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
     let reelObserver;
 
+    const createMutedVideo = (src, poster) => {
+      const video = document.createElement('video');
+      video.muted = true;
+      video.defaultMuted = true;
+      video.loop = true;
+      video.playsInline = true;
+          video.preload = 'none';
+      video.setAttribute('muted', '');
+      video.setAttribute('playsinline', '');
+      if (poster) video.poster = poster;
+      const source = document.createElement('source');
+      source.src = src;
+      source.type = 'video/mp4';
+      video.append(source);
+      video.addEventListener('error', () => video.remove());
+      return video;
+    };
+
+    const playMuted = (video) => {
+      if (!video) return;
+      video.muted = true;
+      if (video.preload === 'none') video.preload = 'auto';
+      video.play().catch(() => {});
+    };
+
+    const stopMuted = (video) => {
+      if (!video) return;
+      video.pause();
+      video.currentTime = 0;
+    };
+
+    const bindHoverPlayback = (host, video) => {
+      if (!video || !canHover.matches) return;
+      host.addEventListener('mouseenter', () => playMuted(video));
+      host.addEventListener('mouseleave', () => stopMuted(video));
+    };
+
     const stopReels = () => {
-      reelGrid.querySelectorAll('video').forEach((video) => {
-        video.pause();
-        video.currentTime = 0;
-      });
+      reelGrid.querySelectorAll('video').forEach(stopMuted);
     };
 
     const closeReelFeed = () => {
@@ -464,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const feed = reelFeeds[feedId];
       if (!feed) return;
       if (titleNode) titleNode.textContent = feed.title;
-      if (handleNode) handleNode.textContent = feed.handle;
+      if (handleNode) handleNode.textContent = feed.handles || feed.handle;
       reelGrid.replaceChildren();
 
       feed.items.forEach((item) => {
@@ -479,26 +542,16 @@ document.addEventListener('DOMContentLoaded', () => {
         media.append(poster);
 
         if (item.src) {
-          const video = document.createElement('video');
-          video.muted = true;
-          video.loop = true;
-          video.playsInline = true;
-          video.preload = 'none';
-          video.setAttribute('muted', '');
-          video.poster = item.poster;
-          const source = document.createElement('source');
-          source.src = item.src;
-          source.type = 'video/mp4';
-          video.append(source);
-          video.addEventListener('error', () => video.remove());
+          const video = createMutedVideo(item.src, item.poster);
           media.append(video);
+          bindHoverPlayback(card, video);
         }
 
         const shade = document.createElement('div');
         shade.className = 'reel-card__shade';
         const handle = document.createElement('span');
         handle.className = 'reel-card__handle';
-        handle.textContent = feed.handle;
+        handle.textContent = item.handle || feed.handle;
         const meta = document.createElement('div');
         meta.className = 'reel-card__meta';
         const tag = document.createElement('span');
@@ -520,19 +573,25 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.add('is-reel-feed-open');
       closeButton?.focus();
       reelObserver?.disconnect();
+      if (canHover.matches) return;
       reelObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           const video = entry.target.querySelector('video');
-          if (!video) return;
-          if (entry.isIntersecting) video.play().catch(() => {});
-          else video.pause();
+          if (entry.isIntersecting) playMuted(video);
+          else stopMuted(video);
         });
       }, { threshold: 0.45 });
       reelGrid.querySelectorAll('.reel-card').forEach((card) => reelObserver.observe(card));
     };
 
     document.querySelectorAll('[data-reel-feed]').forEach((trigger) => {
-      if (trigger === reelFeed) return;
+      const feed = reelFeeds[trigger.getAttribute('data-reel-feed')];
+      const preview = feed?.items?.[0];
+      if (preview?.src) {
+        const video = createMutedVideo(preview.src, preview.poster);
+        trigger.append(video);
+        bindHoverPlayback(trigger, video);
+      }
       trigger.addEventListener('click', (event) => {
         event.preventDefault();
         openReelFeed(trigger.getAttribute('data-reel-feed'));

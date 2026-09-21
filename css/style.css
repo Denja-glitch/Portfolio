@@ -373,7 +373,7 @@ html:has(.contact-page) { background: #efece6; }
 .reel-feed__progress { border: 1.5px solid rgba(17,17,15,.28); border-radius: 50%; bottom: 1.2rem; height: .72rem; left: 50%; pointer-events: none; position: fixed; transform: translateX(-50%); width: .72rem; z-index: 6; }
 .reel-feed__progress::after { background: var(--ink); border-radius: 50%; content: ""; height: 100%; left: 0; opacity: .92; position: absolute; top: 0; transform: scale(var(--reel-progress, 0)); width: 100%; }
 .reel-card { --reel-in: 0; background: #eceae4; border: 0; border-radius: 1.05rem; cursor: pointer; display: block; isolation: isolate; overflow: hidden; padding: 0; position: relative; transform: translate3d(0, calc((1 - var(--reel-in)) * 2.75rem), 0); width: 100%; }
-.reel-card::after { background: var(--white); content: ""; inset: 0; opacity: calc((1 - var(--reel-in)) * .82); pointer-events: none; position: absolute; z-index: 4; }
+.reel-card::after { background: #11110f; content: ""; inset: 0; opacity: calc((1 - var(--reel-in)) * .78); pointer-events: none; position: absolute; z-index: 4; }
 .reel-card__media { aspect-ratio: 9 / 16; background: #eceae4; overflow: hidden; position: relative; }
 .reel-card__media img,
 .reel-card__media video { height: 100%; object-fit: cover; object-position: center; width: 100%; }

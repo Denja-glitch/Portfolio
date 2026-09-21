@@ -423,10 +423,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const reelFeed = document.querySelector('.reel-feed');
   const reelGrid = document.querySelector('[data-reel-grid]');
   if (reelFeed && reelGrid) {
-    const cloudinaryVideo = (file, version, title, handle) => ({
-      title,
-      handle,
-      poster: `https://res.cloudinary.com/zl2rykvk/video/upload/so_0,w_540,h_960,c_fill,f_jpg,q_auto/${file}.jpg`,
+    const posterUrl = (file, so, width = 540, height = 960) => (
+      `https://res.cloudinary.com/zl2rykvk/video/upload/so_${so},w_${width},h_${height},c_fill,g_auto,f_jpg,q_auto/${file}.jpg`
+    );
+
+    const cloudinaryVideo = (file, version, meta) => ({
+      title: meta.title,
+      alt: meta.alt,
+      handle: meta.handle,
+      file,
+      so: meta.so,
+      poster: posterUrl(file, meta.so),
       src: `https://res.cloudinary.com/zl2rykvk/video/upload/q_auto,w_720,f_mp4/v${version}/${file}.mp4`
     });
 
@@ -436,34 +443,147 @@ document.addEventListener('DOMContentLoaded', () => {
         handle: '@embassy_jewel_ag',
         handles: '@embassy_jewel_ag · @kirchhofer_official',
         items: [
-          cloudinaryVideo('video_26', '1789981743', 'Blancpain'),
-          cloudinaryVideo('video_25', '1789981744', 'Atelier'),
-          cloudinaryVideo('video_24', '1789981743', 'Van Cleef & Arpels'),
-          cloudinaryVideo('video', '1789981742', 'Boutique'),
-          cloudinaryVideo('video_20', '1789981739', 'Winter am See'),
-          cloudinaryVideo('video_16', '1789981740', 'Bvlgari'),
-          cloudinaryVideo('video_21', '1789981739', 'TAG Heuer'),
-          cloudinaryVideo('video_23', '1789981740', 'Unboxing'),
-          cloudinaryVideo('video_22', '1789981740', 'KKL Luzern'),
-          cloudinaryVideo('video_19', '1789981739', 'Afternoon Tea'),
-          cloudinaryVideo('video_17', '1789981738', 'Back to Basics'),
-          cloudinaryVideo('video_1', '1789981733', 'Bentley'),
-          cloudinaryVideo('video_3', '1789981734', 'Paris'),
-          cloudinaryVideo('video_2', '1789981735', 'Unterwegs'),
-          cloudinaryVideo('video_4', '1789981735', 'Café'),
-          cloudinaryVideo('video_5', '1789981735', 'Am Wasser'),
-          cloudinaryVideo('video_7', '1789981735', 'Serpenti'),
-          cloudinaryVideo('video_9', '1789981736', 'Apéro'),
-          cloudinaryVideo('video_8', '1789981736', 'Festtage'),
-          cloudinaryVideo('video_13', '1789981737', 'Schwanenplatz'),
-          cloudinaryVideo('video_11', '1789981736', 'Auf dem See'),
-          cloudinaryVideo('video_14', '1789981737', 'Zenith'),
-          cloudinaryVideo('video_18', '1789981739', 'Zenith Box'),
-          cloudinaryVideo('video_15', '1789981738', 'Bentayga'),
-          cloudinaryVideo('video_12', '1789981737', 'Nationalquai'),
-          cloudinaryVideo('video_10', '1789981736', 'Selection'),
-          cloudinaryVideo('video_6', '1789981735', 'Franck Muller'),
-          cloudinaryVideo('video_27', '1789982401', 'Hublot', '@kirchhofer_official')
+          cloudinaryVideo('video_26', '1789981743', {
+            title: 'Blancpain Unboxing',
+            alt: 'Offene Blancpain-Holzkassette mit Uhr, Weinflasche und Gläsern',
+            so: 3.6
+          }),
+          cloudinaryVideo('video_24', '1789981743', {
+            title: 'Van Cleef & Arpels Unboxing',
+            alt: 'Weisse Van-Cleef-&-Arpels-Schachtel mit hellgrüner Schleife vor einer Schmuckvitrine',
+            so: 0.7
+          }),
+          cloudinaryVideo('video', '1789981742', {
+            title: 'Amacord Embassy Event',
+            alt: 'Empfang in einer Boutique, Mann im beerenfarbenen Anzug vor einer Schmuckvitrine',
+            so: 1.5
+          }),
+          cloudinaryVideo('video_20', '1789981739', {
+            title: 'Winter am See mit Blancpain',
+            alt: 'Heisse Schokolade im Schnee am See, Uhr am Handgelenk',
+            so: 2.4
+          }),
+          cloudinaryVideo('video_16', '1789981740', {
+            title: 'Bvlgari High Jewelry',
+            alt: 'Goldene Bvlgari-Armreifen am Handgelenk',
+            so: 5
+          }),
+          cloudinaryVideo('video_15', '1789981738', {
+            title: 'Manufakturbesuch Arnold & Son',
+            alt: 'Schwarzer Bentley Bentayga frontal im Abendlicht',
+            so: 0.7
+          }),
+          cloudinaryVideo('video_23', '1789981740', {
+            title: 'Van Cleef & Arpels Unboxing',
+            alt: 'Geöffnete Van-Cleef-&-Arpels-Box mit weisser Schleife',
+            so: 5
+          }),
+          cloudinaryVideo('video_11', '1789981736', {
+            title: 'Auf dem See mit Breitling',
+            alt: 'Uhr am Handgelenk, Blick über den See zu den Bergen',
+            so: 3.6
+          }),
+          cloudinaryVideo('video_8', '1789981736', {
+            title: 'Zenith Festtage',
+            alt: 'Zenith-Uhr in geöffneter Holzkassette neben einem Weihnachtsbaum',
+            so: 5
+          }),
+          cloudinaryVideo('video_1', '1789981733', {
+            title: 'Bentley Blancpain',
+            alt: 'Hand mit Uhr und Ring am Lenkrad eines Bentley',
+            so: 1.5
+          }),
+          cloudinaryVideo('video_7', '1789981735', {
+            title: 'Serpenti Try on',
+            alt: 'Mehrere Bvlgari-Armreifen am Handgelenk über einer Boutique-Vitrine',
+            so: 5
+          }),
+          cloudinaryVideo('video_13', '1789981737', {
+            title: 'Auf dem See mit Ulysse Nardin',
+            alt: 'Drei Uhren in einem orangen Koffer auf einem Tretboot',
+            so: 2.4
+          }),
+          cloudinaryVideo('video_21', '1789981739', {
+            title: 'TAG Heuer Unboxing',
+            alt: 'Geöffnete TAG-Heuer-Box mit schwarzem Etui auf dem Tisch',
+            so: 3.6
+          }),
+          cloudinaryVideo('video_3', '1789981734', {
+            title: 'Bvlgari Serpenti in Paris',
+            alt: 'Frau fotografiert den Eiffelturm, Uhr und Armreif am Handgelenk',
+            so: 1.5
+          }),
+          cloudinaryVideo('video_18', '1789981739', {
+            title: 'Zenith Unboxing',
+            alt: 'Grüne Zenith-Uhr in geöffneter Box, Logo im Deckel',
+            so: 2.4
+          }),
+          cloudinaryVideo('video_2', '1789981735', {
+            title: 'Blancpain Unterwegs im Bentley',
+            alt: 'Frau am Steuer eines grauen Bentley, Embassyschriftzug auf der Tür',
+            so: 5
+          }),
+          cloudinaryVideo('video_19', '1789981739', {
+            title: 'Bvlgari Afternoon Tea',
+            alt: 'Afternoon-Tea-Menü auf dem Tisch, Uhr am Handgelenk',
+            so: 3.6
+          }),
+          cloudinaryVideo('video_5', '1789981735', {
+            title: 'Franck Muller am Wasser',
+            alt: 'Frau mit rechteckiger Uhr am Handgelenk vor klarem Seewasser',
+            so: 1.5
+          }),
+          cloudinaryVideo('video_10', '1789981736', {
+            title: 'Tray of Watches',
+            alt: 'Tablett mit Uhren in der Draufsicht',
+            so: 5
+          }),
+          cloudinaryVideo('video_12', '1789981737', {
+            title: 'Auf dem See mit Tudor',
+            alt: 'Mann mit Embassy-Tasche am Nationalquai in Luzern, Pedalos am Ufer',
+            so: 1.5
+          }),
+          cloudinaryVideo('video_22', '1789981740', {
+            title: 'Bentley Event Luzern',
+            alt: 'Uhr in Nahaufnahme neben einer Weinflasche',
+            so: 5
+          }),
+          cloudinaryVideo('video_6', '1789981735', {
+            title: 'Franck Muller am See',
+            alt: 'Franck-Muller-Uhr am Handgelenk vor dem Geländer am Seeufer',
+            so: 2.4
+          }),
+          cloudinaryVideo('video_14', '1789981737', {
+            title: 'Zenith Unboxing',
+            alt: 'Zenith-Chronograph in der geöffneten Kassette',
+            so: 5
+          }),
+          cloudinaryVideo('video_4', '1789981735', {
+            title: 'Breilting im Café',
+            alt: 'Cappuccino und Uhr am Handgelenk an einem Café-Tisch im Sonnenlicht',
+            so: 0.7
+          }),
+          cloudinaryVideo('video_27', '1789982401', {
+            title: 'Kirchhofer x Hublot Special Edition',
+            handle: '@kirchhofer_official',
+            alt: 'Hublot Classic Fusion in eisblau, in der Hublot-Schale',
+            so: 2.4
+          }),
+          cloudinaryVideo('video_17', '1789981738', {
+            title: 'TAG Heuer Unboxing',
+            alt: 'TAG-Heuer-Uhren auf einem Tablett neben einem aufgeschlagenen Magazin',
+            so: 5
+          }),
+          cloudinaryVideo('video_9', '1789981736', {
+            title: 'Hublot & Zenith Event',
+            alt: 'Dom-Pérignon-Flaschen im Eiswürfelkübel',
+            so: 5
+          }),
+          cloudinaryVideo('video_25', '1789981744', {
+            title: 'Manufakturbesuch Breitling',
+            alt: 'Breitling-Chronograph am Handgelenk neben einer mintgrünen Karte',
+            so: 3.6
+          })
         ]
       }
     };
@@ -471,18 +591,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleNode = reelFeed.querySelector('#reel-feed-title');
     const handleNode = reelFeed.querySelector('[data-reel-handle]');
     const closeButton = reelFeed.querySelector('[data-reel-close]');
+    const progressNode = reelFeed.querySelector('[data-reel-progress]');
     const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let reelObserver;
+    let reelScrollTick = 0;
 
-    const createMutedVideo = (src, poster) => {
+    const createMutedVideo = (src, poster, label) => {
       const video = document.createElement('video');
       video.muted = true;
       video.defaultMuted = true;
       video.loop = true;
       video.playsInline = true;
-          video.preload = 'none';
+      video.preload = 'none';
       video.setAttribute('muted', '');
       video.setAttribute('playsinline', '');
+      if (label) video.setAttribute('aria-label', label);
       if (poster) video.poster = poster;
       const source = document.createElement('source');
       source.src = src;
@@ -515,12 +639,40 @@ document.addEventListener('DOMContentLoaded', () => {
       reelGrid.querySelectorAll('video').forEach(stopMuted);
     };
 
+    const updateReelScroll = () => {
+      reelScrollTick = 0;
+      const viewH = reelFeed.clientHeight;
+      const maxScroll = Math.max(1, reelFeed.scrollHeight - viewH);
+      const progress = Math.max(0, Math.min(1, reelFeed.scrollTop / maxScroll));
+      progressNode?.style.setProperty('--reel-progress', progress.toFixed(3));
+      if (reduceMotion.matches) return;
+
+      const fadeStart = viewH * 0.94;
+      const fadeEnd = viewH * 0.4;
+      const span = fadeStart - fadeEnd;
+      reelGrid.querySelectorAll('.reel-card').forEach((card) => {
+        const top = card.getBoundingClientRect().top;
+        let amount = (fadeStart - top) / span;
+        amount = Math.max(0, Math.min(1, amount));
+        amount *= amount * (3 - 2 * amount);
+        card.style.setProperty('--reel-in', amount.toFixed(3));
+      });
+    };
+
+    const onReelScroll = () => {
+      if (reelScrollTick) return;
+      reelScrollTick = window.requestAnimationFrame(updateReelScroll);
+    };
+
     const closeReelFeed = () => {
       reelFeed.classList.remove('is-open');
       reelFeed.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('is-reel-feed-open');
       stopReels();
       reelObserver?.disconnect();
+      reelFeed.removeEventListener('scroll', onReelScroll);
+      window.cancelAnimationFrame(reelScrollTick);
+      reelScrollTick = 0;
     };
 
     const renderReelFeed = (feedId) => {
@@ -535,23 +687,29 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'reel-card';
         const media = document.createElement('div');
         media.className = 'reel-card__media';
+        const still = item.poster;
         const poster = document.createElement('img');
-        poster.src = item.poster;
-        poster.alt = item.title || feed.title;
+        poster.src = still;
+        poster.alt = item.alt || item.title || feed.title;
         poster.loading = 'lazy';
         media.append(poster);
 
         if (item.src) {
-          const video = createMutedVideo(item.src, item.poster);
+          const video = createMutedVideo(item.src, still, item.alt || item.title);
           media.append(video);
           bindHoverPlayback(card, video);
         }
 
         const shade = document.createElement('div');
         shade.className = 'reel-card__shade';
+        const handleValue = item.handle || feed.handle;
         const handle = document.createElement('span');
         handle.className = 'reel-card__handle';
-        handle.textContent = item.handle || feed.handle;
+        const avatar = document.createElement('span');
+        avatar.className = 'reel-card__avatar';
+        avatar.setAttribute('aria-hidden', 'true');
+        avatar.textContent = (handleValue.replace('@', '').trim().charAt(0) || 'D').toUpperCase();
+        handle.append(avatar, document.createTextNode(handleValue));
         const meta = document.createElement('div');
         meta.className = 'reel-card__meta';
         const tag = document.createElement('span');
@@ -568,11 +726,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const openReelFeed = (feedId) => {
       renderReelFeed(feedId);
+      reelFeed.scrollTop = 0;
       reelFeed.classList.add('is-open');
       reelFeed.setAttribute('aria-hidden', 'false');
       document.body.classList.add('is-reel-feed-open');
       closeButton?.focus();
       reelObserver?.disconnect();
+      reelFeed.addEventListener('scroll', onReelScroll, { passive: true });
+      updateReelScroll();
+      window.requestAnimationFrame(updateReelScroll);
       if (canHover.matches) return;
       reelObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -580,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (entry.isIntersecting) playMuted(video);
           else stopMuted(video);
         });
-      }, { threshold: 0.45 });
+      }, { root: reelFeed, threshold: 0.45 });
       reelGrid.querySelectorAll('.reel-card').forEach((card) => reelObserver.observe(card));
     };
 
@@ -588,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const feed = reelFeeds[trigger.getAttribute('data-reel-feed')];
       const preview = feed?.items?.[0];
       if (preview?.src) {
-        const video = createMutedVideo(preview.src, preview.poster);
+        const video = createMutedVideo(preview.src, preview.poster, preview.alt || preview.title);
         trigger.append(video);
         bindHoverPlayback(trigger, video);
       }

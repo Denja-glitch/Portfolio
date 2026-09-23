@@ -31,9 +31,8 @@
       <a class="mobile-menu__link" href="../kontakt/">Let's Talk</a>
     </nav>
     <div class="mobile-menu__bar">
-      <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
-      <a href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Instagram</a>
-      <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" data-linkedin>LinkedIn</a>
+      <a class="text-link" href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
+      <a class="text-link" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Instagram</a>
     </div>
   </div>
 
@@ -121,8 +120,10 @@
       <div class="lightbox__stills" data-lightbox-stills hidden></div>
     </div>
     <div class="still-viewer" data-still-viewer aria-hidden="true">
-      <button class="still-viewer__tab" type="button" data-still-close aria-label="Still schliessen">Schliessen</button>
+      <button class="still-viewer__close" type="button" data-still-close aria-label="Still schliessen">×</button>
+      <button class="still-viewer__nav still-viewer__nav--prev" type="button" data-still-prev aria-label="Vorheriges Bild"><span class="icon-arrow" aria-hidden="true"></span></button>
       <img class="still-viewer__image" data-still-image alt="">
+      <button class="still-viewer__nav still-viewer__nav--next" type="button" data-still-next aria-label="Nächstes Bild"><span class="icon-arrow" aria-hidden="true"></span></button>
     </div>
   </div>
 

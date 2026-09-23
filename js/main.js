@@ -11,17 +11,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   revealElements.forEach((element) => revealObserver.observe(element));
 
-  const menuToggle = document.querySelector('[data-menu-toggle]');
+  const menuToggles = document.querySelectorAll('[data-menu-toggle]');
   const mobileMenu = document.querySelector('[data-mobile-menu]');
-  if (menuToggle && mobileMenu) {
+  if (menuToggles.length && mobileMenu) {
+    let menuScrollY = 0;
     const setMenuOpen = (open) => {
+      if (open) {
+        menuScrollY = window.scrollY || window.pageYOffset;
+        document.body.style.top = `-${menuScrollY}px`;
+      }
       document.body.classList.toggle('is-menu-open', open);
       mobileMenu.classList.toggle('is-open', open);
       mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
-      menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menuToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', open ? 'true' : 'false'));
+      if (!open) {
+        document.body.style.top = '';
+        window.scrollTo(0, menuScrollY);
+      }
     };
-    menuToggle.addEventListener('click', () => {
-      setMenuOpen(!document.body.classList.contains('is-menu-open'));
+    menuToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        setMenuOpen(!document.body.classList.contains('is-menu-open'));
+      });
     });
     mobileMenu.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => setMenuOpen(false));
@@ -29,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && document.body.classList.contains('is-menu-open')) {
         setMenuOpen(false);
-        menuToggle.focus();
+        menuToggles[0]?.focus();
       }
     });
     window.matchMedia('(min-width: 701px)').addEventListener('change', (event) => {
@@ -218,13 +229,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const slide = activeStills[stillIndex];
       stillImage.src = slide.src;
       stillImage.alt = slide.caption || titleElement.textContent;
+      stillViewer.classList.toggle('has-many', activeStills.length > 1);
     };
 
     const openStillViewer = (index) => {
       showStill(index);
       stillViewer.classList.add('is-open');
       stillViewer.setAttribute('aria-hidden', 'false');
-      stillViewer.querySelector('[data-still-close]').focus();
+      stillViewer.querySelector('[data-still-close]')?.focus();
     };
 
     const closeStillViewer = () => {
@@ -265,11 +277,23 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     lightbox.querySelectorAll('[data-lightbox-close]').forEach((closeButton) => closeButton.addEventListener('click', closeLightbox));
-    stillViewer.querySelector('[data-still-close]').addEventListener('click', (event) => {
-      event.stopPropagation();
-      closeStillViewer();
+    stillViewer.querySelectorAll('[data-still-close]').forEach((closeButton) => {
+      closeButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        closeStillViewer();
+      });
     });
-    stillImage.addEventListener('click', () => showStill(stillIndex + 1));
+    stillViewer.querySelector('[data-still-prev]')?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      showStill(stillIndex - 1);
+    });
+    stillViewer.querySelector('[data-still-next]')?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      showStill(stillIndex + 1);
+    });
+    stillImage.addEventListener('click', () => {
+      if (activeStills.length > 1) showStill(stillIndex + 1);
+    });
     document.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
       if (event.key === 'Escape') {

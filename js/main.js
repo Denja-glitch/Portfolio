@@ -607,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
       video.preload = 'none';
       video.setAttribute('muted', '');
       video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
       if (label) video.setAttribute('aria-label', label);
       if (poster) video.poster = poster;
       const source = document.createElement('source');
@@ -620,24 +621,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const playMuted = (video) => {
       if (!video) return;
       video.muted = true;
+      video.defaultMuted = true;
+      video.setAttribute('muted', '');
       if (video.preload === 'none') video.preload = 'auto';
-      video.play().catch(() => {});
+      const attempt = video.play();
+      if (attempt && typeof attempt.catch === 'function') attempt.catch(() => {});
     };
 
     const stopMuted = (video) => {
       if (!video) return;
       video.pause();
-      video.currentTime = 0;
+      try { video.currentTime = 0; } catch (_) {}
+    };
+
+    const setReelPlaying = (card, video, playing) => {
+      if (!card) return;
+      card.classList.toggle('is-playing', Boolean(playing));
+      if (playing) playMuted(video);
+      else stopMuted(video);
     };
 
     const bindHoverPlayback = (host, video) => {
       if (!video || !canHover.matches) return;
-      host.addEventListener('mouseenter', () => playMuted(video));
-      host.addEventListener('mouseleave', () => stopMuted(video));
+      host.addEventListener('mouseenter', () => setReelPlaying(host, video, true));
+      host.addEventListener('mouseleave', () => setReelPlaying(host, video, false));
     };
 
     const stopReels = () => {
-      reelGrid.querySelectorAll('video').forEach(stopMuted);
+      reelGrid.querySelectorAll('.reel-card').forEach((card) => {
+        card.classList.remove('is-playing');
+        stopMuted(card.querySelector('video'));
+      });
     };
 
     const updateReelScroll = () => {
@@ -740,14 +754,16 @@ document.addEventListener('DOMContentLoaded', () => {
       scroller.addEventListener('scroll', onReelScroll, { passive: true });
       updateReelScroll();
       window.requestAnimationFrame(updateReelScroll);
+
       if (canHover.matches) return;
+
       reelObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          const video = entry.target.querySelector('video');
-          if (entry.isIntersecting) playMuted(video);
-          else stopMuted(video);
+          const card = entry.target;
+          const video = card.querySelector('video');
+          setReelPlaying(card, video, entry.isIntersecting && entry.intersectionRatio >= 0.28);
         });
-      }, { root: scroller, threshold: 0.45 });
+      }, { root: scroller, threshold: [0, 0.28, 0.5, 0.75] });
       reelGrid.querySelectorAll('.reel-card').forEach((card) => reelObserver.observe(card));
     };
 

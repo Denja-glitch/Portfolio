@@ -38,9 +38,47 @@ button { color: inherit; font: inherit; }
 .nav-link.is-active, .header-contact { color: var(--ink); }
 .site-header--overlay .nav-link.is-active,
 .site-header--overlay .header-contact { color: var(--white); }
-.header-contact { font-size: .75rem; justify-self: end; text-transform: uppercase; }
-.text-link span, .header-contact span, .page-footer__cta .icon-arrow, .contact-mail .icon-arrow { display: inline-block; transition: transform .3s var(--ease); }
-.text-link:hover span, .header-contact:hover span, .page-footer__cta:hover .icon-arrow, .contact-mail:hover .icon-arrow { transform: translate(3px, -3px); }
+.header-contact {
+  align-items: center;
+  display: inline-flex;
+  justify-content: end;
+  justify-self: end;
+  min-height: 1.35rem;
+  min-width: 7.5rem;
+  position: relative;
+  transition: color .3s var(--ease);
+}
+.header-contact__label {
+  font-size: .75rem;
+  text-transform: uppercase;
+  transition: opacity .35s var(--ease), transform .35s var(--ease);
+}
+.header-contact__label .icon-arrow {
+  display: inline-block;
+  transition: transform .3s var(--ease);
+}
+.header-contact__script {
+  aspect-ratio: 2021 / 301;
+  background: currentColor;
+  height: 1.35rem;
+  mask: url("../assets/images/Lets_Talk_Handschrift_LochbeiA.svg") center / contain no-repeat;
+  -webkit-mask: url("../assets/images/Lets_Talk_Handschrift_LochbeiA.svg") center / contain no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-42%);
+  transition: opacity .35s var(--ease);
+  width: auto;
+}
+.header-contact:hover .header-contact__label { opacity: 0; }
+.header-contact:hover .header-contact__label .icon-arrow { transform: translate(3px, -3px); }
+.header-contact:hover .header-contact__script { opacity: 1; }
+.header-contact:hover { color: var(--accent); }
+.site-header--overlay .header-contact:hover { color: var(--accent); }
+.text-link span, .page-footer__cta .icon-arrow, .contact-mail .icon-arrow { display: inline-block; transition: transform .3s var(--ease); }
+.text-link:hover span, .page-footer__cta:hover .icon-arrow, .contact-mail:hover .icon-arrow { transform: translate(3px, -3px); }
 .icon-arrow {
   --icon-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 9.5L9.5 2.5M4.2 2.5H9.5V7.8' stroke='%23000' stroke-width='1' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E");
   background: currentColor;
@@ -533,7 +571,7 @@ html:has(.contact-page) { background: #efece6; }
 @media (max-width: 700px) {
   .site-header { height: 4.5rem; }
   .main-nav { gap: 1rem; }
-  .header-contact { display: none; }
+  .header-contact__script { height: 1.1rem; }
   .hero { min-height: 34rem; }
   .hero h1 { font-size: clamp(2.6rem, 13vw, 4.1rem); }
   .hero__content { padding-bottom: 5.25rem; }

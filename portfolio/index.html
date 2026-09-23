@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Ausgewählte Arbeiten aus den Bereichen Dokumentarfilm, Events, Drohne, Reels und Produktfotografie.">
-  <title>Portfolio — Denja Amstutz</title>
+  <title>Meine Arbeiten</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/main.js" defer></script>
 </head>
-<body class="portfolio-page">
+<body class="portfolio-page" id="top">
   <header class="site-header">
     <a class="wordmark" href="../" aria-label="Startseite">DA<span>.</span></a>
     <nav class="main-nav" aria-label="Hauptnavigation">
@@ -19,7 +19,23 @@
       <a class="nav-link is-active" href="./" aria-current="page">Meine Arbeiten</a>
     </nav>
     <a class="header-contact" href="../kontakt/"><span class="header-contact__label">Let's Talk <span class="icon-arrow" aria-hidden="true"></span></span><span class="header-contact__script" aria-hidden="true"></span></a>
+    <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
+      <span class="menu-toggle__open">Menu <em>+</em></span>
+      <span class="menu-toggle__close">Close <em>×</em></span>
+    </button>
   </header>
+
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu aria-hidden="true">
+    <nav class="mobile-menu__nav" aria-label="Mobile Navigation">
+      <a class="mobile-menu__link" href="../">Home</a>
+      <a class="mobile-menu__link" href="../kontakt/">Let's Talk</a>
+    </nav>
+    <div class="mobile-menu__bar">
+      <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
+      <a href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Instagram</a>
+      <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" data-linkedin>LinkedIn</a>
+    </div>
+  </div>
 
   <main>
     <section class="portfolio-intro section-pad">
@@ -124,13 +140,32 @@
     </div>
   </div>
 
-  <footer class="page-footer section-pad">
-    <div class="page-footer__top">
-      <a class="wordmark" href="../" aria-label="Startseite">DA<span>.</span></a>
-      <a class="page-footer__cta" href="../kontakt/"><span class="page-footer__cta-label">Let's <em>Talk</em> <span class="icon-arrow" aria-hidden="true"></span></span><span class="page-footer__cta-script" aria-hidden="true"></span></a>
-      <p class="page-footer__copy">© 2026 Denja Amstutz</p>
+  <footer class="page-footer page-footer--reveal">
+    <div class="page-footer__stage section-pad">
+      <div class="page-footer__meta">
+        <div class="page-footer__col">
+          <p class="page-footer__label">Kontakt</p>
+          <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
+          <a class="page-footer__cta" href="../kontakt/"><span class="page-footer__cta-label">Let's <em>Talk</em> <span class="icon-arrow" aria-hidden="true"></span></span><span class="page-footer__cta-script" aria-hidden="true"></span></a>
+        </div>
+        <div class="page-footer__col">
+          <p class="page-footer__label">Seiten</p>
+          <a href="../">Home</a>
+          <a href="../kontakt/">Let's Talk</a>
+        </div>
+        <div class="page-footer__col">
+          <p class="page-footer__label">Socials</p>
+          <a href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" data-linkedin>LinkedIn</a>
+        </div>
+        <a class="page-footer__top-link" href="#top">Nach oben ↑</a>
+      </div>
+      <a class="page-footer__mark" href="../" aria-label="Zur Startseite">Denja Amstutz<span>.</span></a>
+      <div class="page-footer__bottom">
+        <a class="wordmark" href="../" aria-label="Startseite">DA<span>.</span></a>
+        <p class="page-footer__copy">© 2026 Denja Amstutz</p>
+      </div>
     </div>
-    <a class="page-footer__mark" href="../" aria-label="Startseite">Denja Amstutz<span>.</span></a>
   </footer>
 </body>
 </html>

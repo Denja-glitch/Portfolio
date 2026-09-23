@@ -20,7 +20,24 @@
       <a class="nav-link" href="portfolio/">Meine Arbeiten</a>
     </nav>
     <a class="header-contact" href="kontakt/"><span class="header-contact__label">Let's Talk <span class="icon-arrow" aria-hidden="true"></span></span><span class="header-contact__script" aria-hidden="true"></span></a>
+    <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
+      <span class="menu-toggle__open">Menu <em>+</em></span>
+      <span class="menu-toggle__close">Close <em>×</em></span>
+    </button>
   </header>
+
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu aria-hidden="true">
+    <nav class="mobile-menu__nav" aria-label="Mobile Navigation">
+      <a class="mobile-menu__link" href="./">Home</a>
+      <a class="mobile-menu__link" href="portfolio/">Meine Arbeiten</a>
+      <a class="mobile-menu__link" href="kontakt/">Let's Talk</a>
+    </nav>
+    <div class="mobile-menu__bar">
+      <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
+      <a href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Instagram</a>
+      <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" data-linkedin>LinkedIn</a>
+    </div>
+  </div>
 
   <main class="section-pad">
     <section class="error-panel" aria-labelledby="error-title">

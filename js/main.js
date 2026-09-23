@@ -11,6 +11,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   revealElements.forEach((element) => revealObserver.observe(element));
 
+  const menuToggle = document.querySelector('[data-menu-toggle]');
+  const mobileMenu = document.querySelector('[data-mobile-menu]');
+  if (menuToggle && mobileMenu) {
+    const setMenuOpen = (open) => {
+      document.body.classList.toggle('is-menu-open', open);
+      mobileMenu.classList.toggle('is-open', open);
+      mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
+      menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    menuToggle.addEventListener('click', () => {
+      setMenuOpen(!document.body.classList.contains('is-menu-open'));
+    });
+    mobileMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => setMenuOpen(false));
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && document.body.classList.contains('is-menu-open')) {
+        setMenuOpen(false);
+        menuToggle.focus();
+      }
+    });
+    window.matchMedia('(min-width: 701px)').addEventListener('change', (event) => {
+      if (event.matches) setMenuOpen(false);
+    });
+  }
+
+  const footerReveal = document.querySelector('.page-footer--reveal');
+  if (footerReveal && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const footerRevealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        footerReveal.classList.toggle('is-revealed', entry.isIntersecting && entry.intersectionRatio > 0.35);
+      });
+    }, { threshold: [0.2, 0.35, 0.55, 0.75] });
+    footerRevealObserver.observe(footerReveal);
+  } else if (footerReveal) {
+    footerReveal.classList.add('is-revealed');
+  }
+
   const contactClock = document.querySelector('[data-contact-clock]');
   if (contactClock) {
     const days = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA'];

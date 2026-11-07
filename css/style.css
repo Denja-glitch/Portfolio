@@ -410,6 +410,9 @@ html:has(.portfolio-page) { background: #efece6; }
   width: fit-content;
 }
 .page-footer__col a:hover { color: var(--accent); }
+/* Instagram-Handle: nur in der mobilen Ansicht sichtbar */
+.page-footer__ig { display: none; align-items: baseline; gap: .6rem; }
+.page-footer__ig span { color: rgba(255,255,255,.42); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; }
 .page-footer__top-link {
   color: rgba(255,255,255,.7);
   font-size: .72rem;
@@ -951,8 +954,11 @@ a.page-footer__mark:hover span { color: inherit; }
   .contact-clock__cell span:first-child { font-size: 1.35rem; }
   .contact-mail { font-size: 1.05rem; }
   .page-footer__meta {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
+  .page-footer__col--pages,
+  .page-footer__col--socials { display: none; }
+  .page-footer__ig { display: flex; }
   .page-footer__top-link {
     grid-column: 1 / -1;
     justify-self: start;

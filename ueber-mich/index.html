@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/main.js" defer></script>
 </head>
@@ -42,16 +43,22 @@
   <main>
     <section class="statement section-pad" aria-labelledby="about-title">
       <div class="statement__intro">
+        <div class="lang-toggle" role="group" aria-label="Sprache / Language">
+          <button type="button" class="is-active" data-set-lang="de" aria-pressed="true">DE</button>
+          <span aria-hidden="true">/</span>
+          <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+        </div>
         <div class="section-heading reveal">
           <div>
-            <div class="section-label">Über mich</div>
-            <h1 id="about-title">Ich bin Denja.</h1>
+            <div class="section-label" data-de="Über mich" data-en="About me">Über mich</div>
+            <h1 id="about-title" data-de="Ich bin Denja." data-en="I'm Denja.">Ich bin Denja.</h1>
           </div>
         </div>
-        <p class="statement__copy ink-letters reveal">In meinem Alltag bewege ich mich zwischen zwei Geschwindigkeiten: Für Marken kreiere ich Fotografie und Social-Media-Content – Formate, die in wenigen Sekunden auf den Punkt kommen müssen.<br><br>Doch wenn ich tiefer in ein Projekt eintauche, schlägt mein Herz für das filmische Storytelling. Ob im Rahmen meines Multimedia-Studiums oder bei eigenen Herzensprojekten: Mich fasziniert der gesamte Prozess. Die Zeit zum Beobachten. Der Rhythmus im Schnitt. Das perfekte Grading und das Sounddesign, das eine Szene erst lebendig macht. Egal ob schnelle Reichweite oder tiefes Eintauchen – ich verbinde das Auge der Fotografin mit dem Handwerk der Filmemacherin.
+        <p class="statement__copy ink-letters reveal" lang="de" data-lang-copy="de">Bei mir hat alles mit der Fotografie begonnen. In den Familienferien nahm ich die Kamera zur Hand und drückte hunderte Male ab – darunter erstaunlich viele holländische Nummernschilder, weil mir die Farbe so gut gefiel. Fortan wurde mir das Fotografieren in der Familie überlassen.<br><br>Später kaufte ich mir meine eigene Spiegelreflexkamera. Mit Freundinnen machte ich immer wieder Fotoshootings im Freien. Bald schickten mir meine Freundinnen auch ihre eigenen Bilder, damit ich sie bearbeite: störende Objekte entfernen, die Poolfarbe ändern – ich war dafür bekannt, dass ich Bilder unglaublich gerne bearbeite. Und die Fotoalben der Familienferien gestaltete ich mit Hingabe.<br><br>Beruflich ging es zuerst in eine andere Richtung: Nach der HF Tourismus schloss ich als Tourismusfachfrau ab und startete das BWL-Studium in Luzern. Schon nach wenigen Monaten merkte ich, dass es nicht zu mir passt. Mir fehlte die Kreativität – und ich sehnte mich danach.<br><br>Als ich das Studium abbrach, reiste ich mit der MMP-Broschüre zu meinen Eltern. Mein Vater blätterte kritisch durch, legte sie weg und sagte: «Das entspricht dir ja so viel mehr. Ich finde es super.» Dann wandte er sich an meine Mutter: «Schaust du bitte, dass sie sich anmeldet.» So begann meine Reise zu meinem heutigen Studium.<br><br>Gearbeitet habe ich schon immer in verschiedenen Branchen, vor allem im Marketing, wo ich Social-Media-Content und Videos erstellte. Richtige Filme zu machen, dafür bekam ich aber erst im Studium das Equipment und die Möglichkeiten. Dort fand ich auch meine Liebe zum Filmen und zur Postproduktion.<br><br>Heute verbinde ich das Auge der Fotografin mit dem Handwerk der Filmemacherin.</p>
+        <p class="statement__copy ink-letters reveal" lang="en" data-lang-copy="en" hidden>For me, it all started with photography. On family holidays I picked up the camera and took hundreds of photos – including a surprising number of Dutch licence plates, because I loved the colour so much. From then on, taking the pictures was left to me.<br><br>Later I bought my own DSLR. With friends I did outdoor photo shoots again and again. Soon my friends also started sending me their own pictures for editing: removing distracting objects, changing the colour of the pool – I was known for how much I loved editing photos. And I designed the family holiday photo albums with devotion.<br><br>Professionally, I first went in a different direction: after my HF in tourism I qualified as a tourism professional and started a business administration degree in Lucerne. After just a few months I realised it wasn't for me. I lacked creativity – and I longed for it.<br><br>When I dropped out of the degree, I travelled to my parents with the MMP brochure. My father leafed through it critically, put it down and said: “This is so much more you. I think it's great.” Then he turned to my mother: “Please make sure she signs up.” That's how my journey to my current studies began.<br><br>I have always worked in different industries, mostly in marketing, where I created social media content and videos. But it was only during my studies that I got the equipment and the opportunities to make real films. That's also where I found my love of filmmaking and post-production.<br><br>Today I combine the eye of a photographer with the craft of a filmmaker.</p>
       </div>
       <figure class="statement__portrait reveal">
-        <img src="../assets/images/About_Denja_Home_2.JPG" alt="Denja Amstutz beim Fotografieren" loading="lazy">
+        <img src="../assets/images/About_Denja_Home_2.JPG" alt="Denja Amstutz beim Fotografieren" data-de="Denja Amstutz beim Fotografieren" data-en="Denja Amstutz taking photographs" loading="lazy">
       </figure>
     </section>
   </main>
@@ -77,8 +84,34 @@
     </div>
     <a class="page-footer__mark" href="../ueber-mich/" aria-label="Über mich">Denja Amstutz<span>.</span></a>
     <div class="page-footer__bottom">
+        <a class="page-footer__legal" href="../datenschutz/">Datenschutz</a>
       <p class="page-footer__copy">© 2026 Denja Amstutz</p>
     </div>
   </footer>
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll('[data-set-lang]');
+      function setLang(lang) {
+        document.querySelectorAll('[data-de]').forEach(function (el) {
+          var text = el.getAttribute('data-' + lang);
+          if (el.tagName === 'IMG') el.alt = text; else el.textContent = text;
+        });
+        document.querySelectorAll('[data-lang-copy]').forEach(function (el) {
+          el.hidden = el.getAttribute('data-lang-copy') !== lang;
+        });
+        buttons.forEach(function (b) {
+          var on = b.getAttribute('data-set-lang') === lang;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        document.title = lang === 'en' ? 'About me - Denja Amstutz' : 'Über mich - Denja Amstutz';
+        try { sessionStorage.setItem('about-lang', lang); } catch (e) {}
+      }
+      buttons.forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-set-lang')); }); });
+      var saved = null;
+      try { saved = sessionStorage.getItem('about-lang'); } catch (e) {}
+      if (saved === 'en') setLang('en');
+    })();
+  </script>
 </body>
 </html>

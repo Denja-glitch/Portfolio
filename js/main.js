@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (type === 'youtube') {
         const params = new URLSearchParams({ mute: '1' });
         if (autoplay) params.set('autoplay', '1');
-        return `https://www.youtube.com/embed/${youtubeId(src)}?${params}`;
+        return `https://www.youtube-nocookie.com/embed/${youtubeId(src)}?${params}`;
       }
       if (type === 'vimeo') {
         const { id, hash } = vimeoParts(src);

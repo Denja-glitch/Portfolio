@@ -1242,11 +1242,6 @@ body.is-lightbox-open .frame-rail, body.is-reel-feed-open .frame-rail, body.is-m
 @media (prefers-reduced-motion: reduce) {
   .film-quotes figcaption { opacity: 1; transition: none; }
 }
-.hero__content { left: auto; right: 0; text-align: right; max-width: min(46rem, 100%); }
-.hero__content .line-mask { text-align: right; }
-@media (max-width: 760px) {
-  .hero__content { max-width: 100%; }
-}
 .page-footer__bottom { border-top: 0; }
 .page-footer__bottom .wordmark { display: none; }
 .page-footer__bottom { justify-content: flex-end; }
@@ -1256,3 +1251,19 @@ body.is-lightbox-open .frame-rail, body.is-reel-feed-open .frame-rail, body.is-m
 .about-page .statement { padding-bottom: var(--home-gap); padding-top: var(--home-gap); padding-right: var(--page-pad); }
 .about-page .statement h1 { font-family: var(--display); font-size: clamp(2.8rem, 7vw, 7.4rem); font-weight: 400; letter-spacing: -.09em; line-height: .87; margin: 1rem 0 0; }
 @media (max-width: 760px) { .about-page .statement { padding-top: 3rem; } }
+.lang-toggle { align-items: center; color: var(--muted); display: flex; font-size: .68rem; gap: .5rem; letter-spacing: .12em; margin-bottom: 1.6rem; }
+.lang-toggle button { background: none; border: 0; border-bottom: 1px solid transparent; color: inherit; cursor: pointer; font: inherit; letter-spacing: inherit; padding: 0 0 .15rem; }
+.lang-toggle button.is-active { border-bottom-color: currentColor; color: var(--ink); }
+.statement__copy[hidden] { display: none; }
+.page-footer__bottom { justify-content: space-between; }
+.page-footer__legal { color: rgba(255,255,255,.48); font-size: .7rem; transition: color .3s var(--ease); }
+.page-footer__legal:hover { color: var(--accent); }
+.legal { padding-bottom: clamp(5rem, 10vw, 8rem); padding-top: clamp(3rem, 6vw, 5rem); }
+.legal .page-title { margin-top: 1rem; }
+.legal__body { margin-top: clamp(2.5rem, 5vw, 4rem); max-width: 42rem; }
+.legal__block { margin-bottom: 2.25rem; }
+.legal__block h2 { font-family: var(--display); font-size: 1.25rem; font-weight: 500; letter-spacing: -.03em; margin: 0 0 .6rem; }
+.legal__block p { color: var(--muted); line-height: 1.65; margin: 0; }
+.legal__block a { text-decoration: underline; text-underline-offset: .2em; }
+.legal__intro { color: var(--muted); line-height: 1.65; margin: 0 0 2.75rem; }
+.legal__block p + p { margin-top: .9rem; }

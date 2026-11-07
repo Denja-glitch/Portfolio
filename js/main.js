@@ -1,4 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Zeilenmaske: Display-Schrift steigt aus dem Schnitt, Buchstaben im Fliesstext färben sich ein.
+  document.querySelectorAll('.split-title > span, .split-title > em, .section-heading h2').forEach((line) => {
+    if (line.querySelector('.line-rise')) return;
+    const rise = document.createElement('span');
+    rise.className = 'line-rise';
+    while (line.firstChild) rise.appendChild(line.firstChild);
+    const mask = document.createElement('span');
+    mask.className = 'line-mask';
+    mask.appendChild(rise);
+    line.appendChild(mask);
+  });
+
+  document.querySelectorAll('.ink-letters').forEach((root) => {
+    const clone = root.cloneNode(true);
+    clone.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+    const plain = clone.textContent;
+    const live = document.createElement('span');
+    live.setAttribute('aria-hidden', 'true');
+    while (root.firstChild) live.appendChild(root.firstChild);
+    const readable = document.createElement('span');
+    readable.className = 'sr-only';
+    readable.textContent = plain;
+    root.append(live, readable);
+    const texts = [];
+    const walker = document.createTreeWalker(live, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return node.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      },
+    });
+    while (walker.nextNode()) texts.push(walker.currentNode);
+    let index = 0;
+    texts.forEach((node) => {
+      const fragment = document.createDocumentFragment();
+      for (const char of node.textContent) {
+        if (char === ' ' || char === '\n') {
+          fragment.appendChild(document.createTextNode(char));
+          continue;
+        }
+        const span = document.createElement('span');
+        span.className = 'ink-char';
+        span.style.setProperty('--i', String(index));
+        span.textContent = char;
+        fragment.appendChild(span);
+        index += 1;
+      }
+      node.parentNode.replaceChild(fragment, node);
+    });
+  });
+
   // Animiert Elemente erst dann, wenn sie in den sichtbaren Bereich kommen.
   const revealElements = document.querySelectorAll('.reveal');
   const revealObserver = new IntersectionObserver((entries, observer) => {
@@ -92,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeStills = [];
     let stillIndex = 0;
     let closeTimer;
+    let stillSwapTimer;
 
     const youtubeId = (src) => {
       const match = src.match(/(?:youtube\.com\/embed\/|youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
@@ -227,8 +279,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!activeStills.length) return;
       stillIndex = (index + activeStills.length) % activeStills.length;
       const slide = activeStills[stillIndex];
-      stillImage.src = slide.src;
-      stillImage.alt = slide.caption || titleElement.textContent;
+      const applyStill = () => {
+        stillImage.src = slide.src;
+        stillImage.alt = slide.caption || titleElement.textContent;
+      };
+      window.clearTimeout(stillSwapTimer);
+      if (stillViewer.classList.contains('is-open') && stillImage.getAttribute('src')) {
+        stillImage.classList.add('is-swapping');
+        stillSwapTimer = window.setTimeout(() => {
+          const reveal = () => stillImage.classList.remove('is-swapping');
+          stillImage.addEventListener('load', reveal, { once: true });
+          window.setTimeout(reveal, 900);
+          applyStill();
+        }, 240);
+      } else {
+        stillImage.classList.remove('is-swapping');
+        applyStill();
+      }
       stillViewer.classList.toggle('has-many', activeStills.length > 1);
     };
 
@@ -309,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const hero = document.querySelector('.hero');
   if (hero) {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const video = hero.querySelector('.hero__video');
     const timecode = hero.querySelector('[data-hero-timecode]');
     const pad = (value) => String(Math.floor(value)).padStart(2, '0');
@@ -347,6 +413,23 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       updateHeroScroll();
       window.addEventListener('scroll', updateHeroScroll, { passive: true });
+
+      const portrait = document.querySelector('.statement__portrait');
+      const portraitImage = portrait?.querySelector('img');
+      if (portrait && portraitImage) {
+        const shift = document.createElement('div');
+        shift.className = 'portrait-shift';
+        portrait.insertBefore(shift, portraitImage);
+        shift.appendChild(portraitImage);
+        const updatePortrait = () => {
+          const rect = portrait.getBoundingClientRect();
+          const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+          const offset = -22 + Math.min(1, Math.max(0, progress)) * 36;
+          shift.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+        };
+        updatePortrait();
+        window.addEventListener('scroll', updatePortrait, { passive: true });
+      }
     }
   }
 
@@ -850,4 +933,153 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.key === 'Escape' && reelFeed.classList.contains('is-open')) closeReelFeed();
     });
   }
+
+  const canHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  document.querySelectorAll('.home-work__media video').forEach((video) => {
+    const card = video.closest('.home-work');
+    if (!card || reduceMotion || !canHoverPreview) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    card.addEventListener('mouseenter', () => {
+      const attempt = video.play();
+      if (attempt) attempt.catch(() => {});
+    });
+    card.addEventListener('mouseleave', () => {
+      video.pause();
+      try { video.currentTime = 0; } catch (_) {}
+    });
+  });
+
+  // Cursor: folgt der Maus und benennt, was ein Klick öffnet.
+  if (canHoverPreview) {
+    const cursor = document.createElement('div');
+    cursor.className = 'cursor';
+    cursor.setAttribute('aria-hidden', 'true');
+    const cursorLabel = document.createElement('span');
+    cursor.append(cursorLabel);
+    document.body.append(cursor);
+    const targetSelector = '.home-work, .project-card__media, .instagram-tile, .home-close__cta';
+    let tx = -100;
+    let ty = -100;
+    let cx = -100;
+    let cy = -100;
+    let scale = 0.3;
+    let wantScale = 0.3;
+    let activeTarget = null;
+    let cursorFrame = 0;
+
+    const labelFor = (el) => {
+      if (el.classList.contains('instagram-tile')) return 'Instagram';
+      if (el.classList.contains('home-close__cta')) return 'Kontakt';
+      if (el.hasAttribute('data-reel-feed')) return 'Feed';
+      if (el.classList.contains('home-work')) return el.querySelector('video') ? 'Film' : 'Ansehen';
+      const gallery = el.getAttribute('data-gallery') || '';
+      const isFilm = el.getAttribute('data-media-type') === 'youtube'
+        || /youtu\.?be|vimeo/.test(gallery.split('|')[0] || '');
+      return isFilm ? 'Film' : 'Ansehen';
+    };
+
+    const tickCursor = () => {
+      cx += (tx - cx) * 0.2;
+      cy += (ty - cy) * 0.2;
+      scale += (wantScale - scale) * 0.18;
+      cursor.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+      const settled = Math.abs(tx - cx) < 0.3 && Math.abs(ty - cy) < 0.3 && Math.abs(wantScale - scale) < 0.003;
+      cursorFrame = settled ? 0 : window.requestAnimationFrame(tickCursor);
+    };
+    const wakeCursor = () => { if (!cursorFrame) cursorFrame = window.requestAnimationFrame(tickCursor); };
+
+    const setTarget = (target) => {
+      if (target === activeTarget) return;
+      activeTarget?.classList.remove('has-cursor-target');
+      activeTarget = target;
+      if (target) {
+        target.classList.add('has-cursor-target');
+        cursorLabel.textContent = labelFor(target);
+        cursor.classList.add('is-visible');
+        wantScale = 1;
+      } else {
+        cursor.classList.remove('is-visible');
+        wantScale = 0.3;
+      }
+      wakeCursor();
+    };
+
+    document.addEventListener('mousemove', (event) => {
+      tx = event.clientX;
+      ty = event.clientY;
+      if (!activeTarget) { cx = tx; cy = ty; }
+      const insideOverlay = event.target.closest?.('.lightbox, .reel-feed');
+      setTarget(insideOverlay ? null : (event.target.closest?.(targetSelector) || null));
+      wakeCursor();
+    }, { passive: true });
+    document.addEventListener('mouseleave', () => setTarget(null));
+  }
+
+  // Magnetische Elemente: ziehen sich leicht zum Cursor.
+  if (canHoverPreview && !reduceMotion) {
+    document.querySelectorAll('.header-contact, .filter-button, .page-footer__cta, .text-link, .contact-mail').forEach((el) => {
+      el.classList.add('is-magnetic');
+      el.addEventListener('mousemove', (event) => {
+        const rect = el.getBoundingClientRect();
+        const dx = (event.clientX - (rect.left + rect.width / 2)) / rect.width;
+        const dy = (event.clientY - (rect.top + rect.height / 2)) / rect.height;
+        el.classList.add('is-pulling');
+        el.style.translate = `${(dx * 14).toFixed(1)}px ${(dy * 10).toFixed(1)}px`;
+      });
+      el.addEventListener('mouseleave', () => {
+        el.classList.remove('is-pulling');
+        el.style.translate = '';
+      });
+    });
+  }
+
+  // Scroll-gekoppelt: Laufschrift, Timecode-Leiste und Tiefe in den Fotos.
+  const marqueeTrack = document.querySelector('[data-marquee]');
+  const depthImages = [...document.querySelectorAll('.project-card__media img, .home-work__media img, .instagram-tile img')];
+
+  const rail = document.createElement('div');
+  rail.className = 'frame-rail';
+  rail.setAttribute('aria-hidden', 'true');
+  rail.innerHTML = '<span class="frame-rail__dot"></span><span class="frame-rail__time">00:00:00:00</span><span class="frame-rail__line"></span>';
+  document.body.append(rail);
+  const railTime = rail.querySelector('.frame-rail__time');
+
+  let scrollQueued = false;
+  const updateScrollEffects = () => {
+    scrollQueued = false;
+    const doc = document.documentElement;
+    const max = Math.max(doc.scrollHeight - window.innerHeight, 1);
+    const progress = Math.min(1, Math.max(0, window.scrollY / max));
+    rail.style.setProperty('--rail', progress.toFixed(4));
+    const frames = Math.floor(progress * 180 * 25);
+    const f = frames % 25;
+    const s = Math.floor(frames / 25) % 60;
+    const m = Math.floor(frames / 1500);
+    railTime.textContent = `00:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}:${String(f).padStart(2, '0')}`;
+
+    if (marqueeTrack) {
+      const rect = marqueeTrack.parentElement.getBoundingClientRect();
+      const offset = Math.min(0, (window.innerHeight - rect.top) * -0.28);
+      marqueeTrack.style.transform = `translate3d(${offset.toFixed(1)}px, 0, 0)`;
+    }
+
+    if (!reduceMotion) {
+      depthImages.forEach((img) => {
+        const box = img.parentElement.getBoundingClientRect();
+        if (box.bottom < -80 || box.top > window.innerHeight + 80 || !box.height) return;
+        const p = ((box.top + box.height / 2) - window.innerHeight / 2) / (window.innerHeight / 2 + box.height / 2);
+        img.style.setProperty('--py', `${(Math.max(-1, Math.min(1, p)) * box.height * 0.045).toFixed(1)}px`);
+      });
+    }
+  };
+  const queueScrollEffects = () => {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    window.requestAnimationFrame(updateScrollEffects);
+  };
+  window.addEventListener('scroll', queueScrollEffects, { passive: true });
+  window.addEventListener('resize', queueScrollEffects);
+  updateScrollEffects();
 });

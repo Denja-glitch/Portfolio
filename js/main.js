@@ -377,16 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const hero = document.querySelector('.hero');
   if (hero) {
     const video = hero.querySelector('.hero__video');
-    const timecode = hero.querySelector('[data-hero-timecode]');
-    const pad = (value) => String(Math.floor(value)).padStart(2, '0');
-    const formatTimecode = (seconds) => {
-      const frames = Math.floor((seconds % 1) * 24);
-      const total = Math.floor(seconds);
-      const s = total % 60;
-      const m = Math.floor(total / 60) % 60;
-      const h = Math.floor(total / 3600);
-      return `${pad(h)}:${pad(m)}:${pad(s)}:${pad(frames)}`;
-    };
 
     const openHero = () => hero.classList.add('is-open');
     if (reduceMotion) {
@@ -395,14 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       window.requestAnimationFrame(() => window.requestAnimationFrame(openHero));
       video?.play()?.catch(() => {});
-    }
-
-    if (video && timecode && !reduceMotion) {
-      const tickTimecode = () => {
-        timecode.textContent = formatTimecode(video.currentTime || 0);
-        window.requestAnimationFrame(tickTimecode);
-      };
-      window.requestAnimationFrame(tickTimecode);
     }
 
     if (!reduceMotion) {
@@ -959,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursorLabel = document.createElement('span');
     cursor.append(cursorLabel);
     document.body.append(cursor);
-    const targetSelector = '.home-work, .project-card__media, .instagram-tile, .home-close__cta';
+    const targetSelector = '.home-work, .project-card__media';
     let tx = -100;
     let ty = -100;
     let cx = -100;
@@ -970,8 +952,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let cursorFrame = 0;
 
     const labelFor = (el) => {
-      if (el.classList.contains('instagram-tile')) return 'Instagram';
-      if (el.classList.contains('home-close__cta')) return 'Kontakt';
       if (el.hasAttribute('data-reel-feed')) return 'Feed';
       if (el.classList.contains('home-work')) return el.querySelector('video') ? 'Film' : 'Ansehen';
       const gallery = el.getAttribute('data-gallery') || '';
@@ -1035,36 +1015,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Scroll-gekoppelt: Laufschrift, Timecode-Leiste und Tiefe in den Fotos.
-  const marqueeTrack = document.querySelector('[data-marquee]');
-  const depthImages = [...document.querySelectorAll('.project-card__media img, .home-work__media img, .instagram-tile img')];
-
-  const rail = document.createElement('div');
-  rail.className = 'frame-rail';
-  rail.setAttribute('aria-hidden', 'true');
-  rail.innerHTML = '<span class="frame-rail__dot"></span><span class="frame-rail__time">00:00:00:00</span><span class="frame-rail__line"></span>';
-  document.body.append(rail);
-  const railTime = rail.querySelector('.frame-rail__time');
+  // Scroll-gekoppelt: Tiefe in den Fotos.
+  const depthImages = [...document.querySelectorAll('.project-card__media img, .home-work__media img')];
 
   let scrollQueued = false;
   const updateScrollEffects = () => {
     scrollQueued = false;
-    const doc = document.documentElement;
-    const max = Math.max(doc.scrollHeight - window.innerHeight, 1);
-    const progress = Math.min(1, Math.max(0, window.scrollY / max));
-    rail.style.setProperty('--rail', progress.toFixed(4));
-    const frames = Math.floor(progress * 180 * 25);
-    const f = frames % 25;
-    const s = Math.floor(frames / 25) % 60;
-    const m = Math.floor(frames / 1500);
-    railTime.textContent = `00:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}:${String(f).padStart(2, '0')}`;
-
-    if (marqueeTrack) {
-      const rect = marqueeTrack.parentElement.getBoundingClientRect();
-      const offset = Math.min(0, (window.innerHeight - rect.top) * -0.28);
-      marqueeTrack.style.transform = `translate3d(${offset.toFixed(1)}px, 0, 0)`;
-    }
-
     if (!reduceMotion) {
       depthImages.forEach((img) => {
         const box = img.parentElement.getBoundingClientRect();

@@ -137,13 +137,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const stillsContainer = lightbox.querySelector('[data-lightbox-stills]');
     const titleElement = lightbox.querySelector('[data-lightbox-title]');
     const descriptionElement = lightbox.querySelector('[data-lightbox-description]');
-    const stillViewer = lightbox.querySelector('[data-still-viewer]');
-    const stillImage = lightbox.querySelector('[data-still-image]');
+    const stage = lightbox.querySelector('[data-photo-stage]');
+    const stageSlides = lightbox.querySelector('[data-stage-slides]');
+    const stageSheet = lightbox.querySelector('[data-stage-sheet]');
+    const stageInfoButton = lightbox.querySelector('[data-stage-info]');
+    let stageImages = [];
+    let stageIndex = 0;
+    let stageBusy = false;
+    let stageWheelLock = 0;
     let activeTrigger;
-    let activeStills = [];
-    let stillIndex = 0;
     let closeTimer;
-    let stillSwapTimer;
 
     const youtubeId = (src) => {
       const match = src.match(/(?:youtube\.com\/embed\/|youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/);
@@ -229,6 +232,109 @@ document.addEventListener('DOMContentLoaded', () => {
       return media;
     };
 
+
+    // Fotoprojekte: Bilder schieben sich beim Scrollen von unten übereinander.
+    const setStageInfo = (open) => {
+      stageSheet.classList.toggle('is-open', open);
+      stageSheet.setAttribute('aria-hidden', String(!open));
+      stageInfoButton.setAttribute('aria-expanded', String(open));
+      stageInfoButton.querySelector('[data-stage-info-label]').textContent = open ? 'Schliessen' : 'Info';
+    };
+
+    const makeStageSlide = (slide, projectTitle) => {
+      const figure = document.createElement('figure');
+      figure.className = 'photo-stage__slide';
+      figure.append(createMedia(slide, projectTitle, false));
+      return figure;
+    };
+
+    const stageStack = [];
+
+    const layoutStack = () => {
+      stageStack.forEach((slide, k) => {
+        const depth = stageStack.length - 1 - k;
+        slide.style.zIndex = String(k + 1);
+        slide.style.setProperty('--d', depth);
+      });
+    };
+
+    const addStageSlide = (index, { entering = false } = {}) => {
+      const slide = makeStageSlide(stageImages[index], titleElement.textContent);
+      slide.dataset.index = String(index);
+      slide.style.setProperty('--ox', `${(((index * 37) % 7) - 3) * 4.5 || 6}%`);
+      slide.style.setProperty('--oy', `${(((index * 53) % 5) - 2) * 3 || -4}%`);
+      slide.style.setProperty('--r', `${(((index * 29) % 9) - 4) * 0.9 || 2}deg`);
+      if (entering) slide.classList.add('is-entering');
+      stageSlides.append(slide);
+      stageStack.push(slide);
+      return slide;
+    };
+
+    const showStage = (target, direction) => {
+      if (!stageImages.length) return;
+      const next = (target + stageImages.length) % stageImages.length;
+      if (stageStack.length && (stageBusy || next === stageIndex)) return;
+      const wait = reduceMotion ? 0 : 1100;
+      if (direction > 0 || !stageStack.length) {
+        const slide = addStageSlide(next, { entering: stageStack.length > 0 });
+        layoutStack();
+        void slide.offsetWidth;
+        slide.classList.remove('is-entering');
+        if (stageStack.length > 5) {
+          const oldest = stageStack.shift();
+          oldest.classList.add('is-gone');
+          window.setTimeout(() => oldest.remove(), wait);
+        }
+      } else {
+        stageBusy = true;
+        const top = stageStack.pop();
+        top.classList.add('is-exiting');
+        if (!stageStack.length || Number(stageStack[stageStack.length - 1].dataset.index) !== next) {
+          addStageSlide(next);
+        }
+        layoutStack();
+        window.setTimeout(() => { top.remove(); stageBusy = false; }, wait);
+      }
+      stageIndex = next;
+      lightbox.querySelector('[data-stage-index]').textContent = String(next + 1).padStart(2, '0');
+      [next + 1, next - 1].forEach((n) => {
+        const neighbour = stageImages[(n + stageImages.length) % stageImages.length];
+        if (neighbour) new Image().src = neighbour.src;
+      });
+    };
+
+    const renderStage = (projectTitle, copy, images, start = 0, overlay = false) => {
+      stageImages = images;
+      stageIndex = start;
+      stageBusy = false;
+      stageSlides.replaceChildren();
+      stageStack.length = 0;
+      setStageInfo(false);
+      lightbox.querySelector('[data-stage-title]').textContent = projectTitle;
+      lightbox.querySelector('[data-stage-project]').textContent = projectTitle;
+      lightbox.querySelector('[data-stage-total]').textContent = String(images.length).padStart(2, '0');
+      lightbox.querySelector('[data-stage-description]').innerHTML = copy ? copy.innerHTML.trim() : '';
+      stageInfoButton.hidden = !copy;
+      stage.classList.toggle('is-overlay', overlay);
+      stage.hidden = false;
+      showStage(start, 1);
+      if (overlay) {
+        void stage.offsetWidth;
+        stage.classList.add('is-shown');
+        stage.querySelector('[data-stage-close]').focus({ preventScroll: true });
+      }
+    };
+
+    const closeStageOverlay = () => {
+      stage.classList.remove('is-shown');
+      window.setTimeout(() => {
+        if (stage.classList.contains('is-shown')) return;
+        stage.hidden = true;
+        stageSlides.replaceChildren();
+        stageStack.length = 0;
+      }, 900);
+    };
+
     const renderProject = (trigger) => {
       const card = trigger.closest('.project-card');
       const projectTitle = card.querySelector('h3').textContent;
@@ -238,92 +344,56 @@ document.addEventListener('DOMContentLoaded', () => {
       const images = slides.filter((slide) => !isVideoSlide(slide));
       const isPhotography = !videos.length;
       const isMixed = videos.length > 0 && images.length > 0;
-      const features = videos.length ? videos : images.slice(0, 1);
-      const stills = videos.length ? images : images.slice(1);
 
       lightbox.classList.toggle('is-photography', isPhotography);
       lightbox.classList.toggle('is-mixed', isMixed);
       featureContainer.replaceChildren();
       stillsContainer.replaceChildren();
-      features.forEach((slide, index) => {
-        featureContainer.append(createMedia(slide, projectTitle, index === 0 && slide.type === 'youtube'));
-      });
+      stage.classList.remove('is-shown', 'is-overlay');
+      stage.hidden = true;
+      stageSlides.replaceChildren();
+      stageStack.length = 0;
+      titleElement.textContent = projectTitle;
 
       if (isPhotography) {
-        featureContainer.querySelector('img')?.addEventListener('click', () => openStillViewer(0));
+        stillsContainer.hidden = true;
+        renderStage(projectTitle, copy, images);
+        return;
       }
 
-      stills.forEach((slide, index) => {
+      videos.forEach((slide, index) => {
+        featureContainer.append(createMedia(slide, projectTitle, index === 0 && slide.type === 'youtube'));
+      });
+      images.forEach((slide, index) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'lightbox__still';
         button.setAttribute('aria-label', slide.caption ? `${slide.caption} vergrössern` : 'Still vergrössern');
         button.append(createMedia(slide, projectTitle, false));
-        button.addEventListener('click', () => openStillViewer(isPhotography ? index + 1 : index));
+        button.addEventListener('click', () => renderStage(projectTitle, copy, images, index, true));
         stillsContainer.append(button);
       });
-      stillsContainer.hidden = !stills.length;
-      activeStills = isPhotography ? images : stills;
-      stillIndex = 0;
+      stillsContainer.hidden = !images.length;
 
-      titleElement.textContent = projectTitle;
       const descriptionHtml = copy?.innerHTML.trim() || '';
-      const descriptionText = copy?.textContent.trim() || features[0]?.caption || '';
+      const descriptionText = copy?.textContent.trim() || videos[0]?.caption || '';
       if (copy?.querySelector('p')) descriptionElement.innerHTML = descriptionHtml;
       else descriptionElement.textContent = descriptionText;
       descriptionElement.hidden = !descriptionText;
       lightbox.querySelector('.lightbox__panel').scrollTop = 0;
     };
 
-    const showStill = (index) => {
-      if (!activeStills.length) return;
-      stillIndex = (index + activeStills.length) % activeStills.length;
-      const slide = activeStills[stillIndex];
-      const applyStill = () => {
-        stillImage.src = slide.src;
-        stillImage.alt = slide.caption || titleElement.textContent;
-      };
-      window.clearTimeout(stillSwapTimer);
-      if (stillViewer.classList.contains('is-open') && stillImage.getAttribute('src')) {
-        stillImage.classList.add('is-swapping');
-        stillSwapTimer = window.setTimeout(() => {
-          const reveal = () => stillImage.classList.remove('is-swapping');
-          stillImage.addEventListener('load', reveal, { once: true });
-          window.setTimeout(reveal, 900);
-          applyStill();
-        }, 240);
-      } else {
-        stillImage.classList.remove('is-swapping');
-        applyStill();
-      }
-      stillViewer.classList.toggle('has-many', activeStills.length > 1);
-    };
-
-    const openStillViewer = (index) => {
-      showStill(index);
-      stillViewer.classList.add('is-open');
-      stillViewer.setAttribute('aria-hidden', 'false');
-      stillViewer.querySelector('[data-still-close]')?.focus();
-    };
-
-    const closeStillViewer = () => {
-      stillViewer.classList.remove('is-open');
-      stillViewer.setAttribute('aria-hidden', 'true');
-    };
-
     const openLightbox = (trigger) => {
       window.clearTimeout(closeTimer);
-      closeStillViewer();
       activeTrigger = trigger;
       renderProject(trigger);
       lightbox.classList.add('is-open');
       lightbox.setAttribute('aria-hidden', 'false');
       document.body.classList.add('is-lightbox-open');
-      lightbox.querySelector('.lightbox__close').focus();
+      (lightbox.classList.contains('is-photography') ? stage.querySelector('[data-stage-close]') : lightbox.querySelector('.lightbox__close')).focus({ preventScroll: true });
     };
 
     const closeLightbox = () => {
-      closeStillViewer();
       lightbox.classList.remove('is-open');
       lightbox.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('is-lightbox-open');
@@ -332,7 +402,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lightbox.classList.contains('is-open')) return;
         featureContainer.replaceChildren();
         stillsContainer.replaceChildren();
-        stillImage.removeAttribute('src');
+        stage.classList.remove('is-shown');
+        stage.hidden = true;
+        stageSlides.replaceChildren();
+        stageStack.length = 0;
         activeTrigger?.focus();
       }, 850);
     };
@@ -344,33 +417,41 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     lightbox.querySelectorAll('[data-lightbox-close]').forEach((closeButton) => closeButton.addEventListener('click', closeLightbox));
-    stillViewer.querySelectorAll('[data-still-close]').forEach((closeButton) => {
-      closeButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        closeStillViewer();
-      });
+    stage.querySelector('[data-stage-close]').addEventListener('click', () => {
+      if (stage.classList.contains('is-overlay')) closeStageOverlay();
+      else closeLightbox();
     });
-    stillViewer.querySelector('[data-still-prev]')?.addEventListener('click', (event) => {
-      event.stopPropagation();
-      showStill(stillIndex - 1);
-    });
-    stillViewer.querySelector('[data-still-next]')?.addEventListener('click', (event) => {
-      event.stopPropagation();
-      showStill(stillIndex + 1);
-    });
-    stillImage.addEventListener('click', () => {
-      if (activeStills.length > 1) showStill(stillIndex + 1);
-    });
+    stageInfoButton.addEventListener('click', () => setStageInfo(!stageSheet.classList.contains('is-open')));
+    lightbox.querySelector('[data-stage-next]').addEventListener('click', () => showStage(stageIndex + 1, 1));
+    lightbox.querySelector('[data-stage-prev]').addEventListener('click', () => showStage(stageIndex - 1, -1));
+    stage.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      const now = Date.now();
+      if (now - stageWheelLock < 1000 || Math.abs(event.deltaY) < 8) return;
+      stageWheelLock = now;
+      showStage(stageIndex + (event.deltaY > 0 ? 1 : -1), event.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+    let stageTouchY = null;
+    stage.addEventListener('touchstart', (event) => { stageTouchY = event.touches[0].clientY; }, { passive: true });
+    stage.addEventListener('touchend', (event) => {
+      if (stageTouchY === null) return;
+      const delta = event.changedTouches[0].clientY - stageTouchY;
+      stageTouchY = null;
+      if (Math.abs(delta) < 48) return;
+      showStage(stageIndex + (delta < 0 ? 1 : -1), delta < 0 ? 1 : -1);
+    }, { passive: true });
     document.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
+      const stageActive = !stage.hidden;
       if (event.key === 'Escape') {
-        if (stillViewer.classList.contains('is-open')) closeStillViewer();
+        if (stageActive && stageSheet.classList.contains('is-open')) setStageInfo(false);
+        else if (stageActive && stage.classList.contains('is-overlay')) closeStageOverlay();
         else closeLightbox();
         return;
       }
-      if (!stillViewer.classList.contains('is-open')) return;
-      if (event.key === 'ArrowRight') showStill(stillIndex + 1);
-      if (event.key === 'ArrowLeft') showStill(stillIndex - 1);
+      if (!stageActive) return;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') showStage(stageIndex + 1, 1);
+      if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') showStage(stageIndex - 1, -1);
     });
   }
 
@@ -946,8 +1027,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let ty = -100;
     let cx = -100;
     let cy = -100;
-    let scale = 0.3;
-    let wantScale = 0.3;
     let activeTarget = null;
     let cursorFrame = 0;
 
@@ -961,40 +1040,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const tickCursor = () => {
-      cx += (tx - cx) * 0.2;
-      cy += (ty - cy) * 0.2;
-      scale += (wantScale - scale) * 0.18;
-      cursor.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
-      const settled = Math.abs(tx - cx) < 0.3 && Math.abs(ty - cy) < 0.3 && Math.abs(wantScale - scale) < 0.003;
+      cx += (tx - cx) * 0.25;
+      cy += (ty - cy) * 0.25;
+      cursor.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+      const settled = Math.abs(tx - cx) < 0.3 && Math.abs(ty - cy) < 0.3;
       cursorFrame = settled ? 0 : window.requestAnimationFrame(tickCursor);
     };
     const wakeCursor = () => { if (!cursorFrame) cursorFrame = window.requestAnimationFrame(tickCursor); };
 
     const setTarget = (target) => {
       if (target === activeTarget) return;
-      activeTarget?.classList.remove('has-cursor-target');
       activeTarget = target;
-      if (target) {
-        target.classList.add('has-cursor-target');
-        cursorLabel.textContent = labelFor(target);
-        cursor.classList.add('is-visible');
-        wantScale = 1;
-      } else {
-        cursor.classList.remove('is-visible');
-        wantScale = 0.3;
-      }
+      if (target) cursorLabel.textContent = labelFor(target);
+      cursor.classList.toggle('is-active', Boolean(target));
       wakeCursor();
     };
 
     document.addEventListener('mousemove', (event) => {
+      if (!document.documentElement.classList.contains('has-custom-cursor')) {
+        cx = event.clientX;
+        cy = event.clientY;
+        document.documentElement.classList.add('has-custom-cursor');
+        cursor.classList.add('is-visible');
+      }
       tx = event.clientX;
       ty = event.clientY;
-      if (!activeTarget) { cx = tx; cy = ty; }
       const insideOverlay = event.target.closest?.('.lightbox, .reel-feed');
       setTarget(insideOverlay ? null : (event.target.closest?.(targetSelector) || null));
       wakeCursor();
     }, { passive: true });
-    document.addEventListener('mouseleave', () => setTarget(null));
+    document.documentElement.addEventListener('mouseleave', () => { setTarget(null); cursor.classList.remove('is-visible'); document.documentElement.classList.remove('has-custom-cursor'); });
   }
 
   // Magnetische Elemente: ziehen sich leicht zum Cursor.

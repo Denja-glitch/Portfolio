@@ -50,6 +50,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Seite hinter Overlays festsetzen (Menü, Lightbox, Reel-Feed), auch auf dem Handy.
+  let scrollLocks = 0;
+  let lockedScrollY = 0;
+  const lockScroll = () => {
+    if (scrollLocks++ > 0) return;
+    lockedScrollY = window.scrollY || window.pageYOffset;
+    document.body.style.top = `-${lockedScrollY}px`;
+    document.body.classList.add('is-scroll-locked');
+  };
+  const unlockScroll = () => {
+    if (scrollLocks === 0 || --scrollLocks > 0) return;
+    document.body.classList.remove('is-scroll-locked');
+    document.body.style.top = '';
+    window.scrollTo({ top: lockedScrollY, behavior: 'instant' });
+  };
+
   // Animiert Elemente erst dann, wenn sie in den sichtbaren Bereich kommen.
   const revealElements = document.querySelectorAll('.reveal');
   const revealObserver = new IntersectionObserver((entries, observer) => {
@@ -65,20 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuToggles = document.querySelectorAll('[data-menu-toggle]');
   const mobileMenu = document.querySelector('[data-mobile-menu]');
   if (menuToggles.length && mobileMenu) {
-    let menuScrollY = 0;
+    let menuLocked = false;
     const setMenuOpen = (open) => {
-      if (open) {
-        menuScrollY = window.scrollY || window.pageYOffset;
-        document.body.style.top = `-${menuScrollY}px`;
-      }
+      if (open && !menuLocked) { lockScroll(); menuLocked = true; }
       document.body.classList.toggle('is-menu-open', open);
       mobileMenu.classList.toggle('is-open', open);
       mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
       menuToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', open ? 'true' : 'false'));
-      if (!open) {
-        document.body.style.top = '';
-        window.scrollTo(0, menuScrollY);
-      }
+      if (!open && menuLocked) { unlockScroll(); menuLocked = false; }
     };
     menuToggles.forEach((toggle) => {
       toggle.addEventListener('click', () => {
@@ -389,6 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderProject(trigger);
       lightbox.classList.add('is-open');
       lightbox.setAttribute('aria-hidden', 'false');
+      if (!document.body.classList.contains('is-lightbox-open')) lockScroll();
       document.body.classList.add('is-lightbox-open');
       (lightbox.classList.contains('is-photography') ? stage.querySelector('[data-stage-close]') : lightbox.querySelector('.lightbox__close')).focus({ preventScroll: true });
     };
@@ -396,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeLightbox = () => {
       lightbox.classList.remove('is-open');
       lightbox.setAttribute('aria-hidden', 'true');
+      if (document.body.classList.contains('is-lightbox-open')) unlockScroll();
       document.body.classList.remove('is-lightbox-open');
       window.clearTimeout(closeTimer);
       closeTimer = window.setTimeout(() => {
@@ -892,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeReelFeed = () => {
       reelFeed.classList.remove('is-open');
       reelFeed.setAttribute('aria-hidden', 'true');
+      if (document.body.classList.contains('is-reel-feed-open')) unlockScroll();
       document.body.classList.remove('is-reel-feed-open');
       stopReels();
       reelObserver?.disconnect();
@@ -956,6 +969,7 @@ document.addEventListener('DOMContentLoaded', () => {
       scroller.scrollTop = 0;
       reelFeed.classList.add('is-open');
       reelFeed.setAttribute('aria-hidden', 'false');
+      if (!document.body.classList.contains('is-reel-feed-open')) lockScroll();
       document.body.classList.add('is-reel-feed-open');
       closeButton?.focus();
       reelObserver?.disconnect();

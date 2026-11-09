@@ -1234,7 +1234,6 @@ html:has(.kontakt-page) { background: var(--ink); }
 }
 
 .hero__role { bottom: clamp(2.4rem, 5.5vw, 3.4rem); color: rgba(255, 255, 255, .8); font-size: .68rem; letter-spacing: .14em; margin: 0; position: absolute; right: var(--page-pad); text-align: right; text-transform: uppercase; z-index: 2; }
-.home-signature { color: var(--muted); font-size: .68rem; letter-spacing: .14em; margin: clamp(3rem, 6vw, 4.5rem) 0 0; text-align: center; text-transform: uppercase; }
 @media (max-width: 700px) {
   .hero__role { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); font-size: .6rem; }
 }

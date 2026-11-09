@@ -36,7 +36,9 @@
 
   <main class="contact-canvas">
     <div class="contact-canvas__media" aria-hidden="true">
-      <img src="../assets/images/Still_Simons_Kaffee_Close-2048x1152.jpg" alt="">
+      <video autoplay muted loop playsinline preload="metadata" poster="../assets/images/Still_Simons_Kaffee_Close-2048x1152.jpg">
+        <source src="../assets/videos/hero-2.mp4" type="video/mp4">
+      </video>
     </div>
 
     <section class="contact-stage section-pad" aria-labelledby="contact-title">
@@ -68,9 +70,9 @@
             <input type="email" name="email" autocomplete="email" required>
           </label>
         </div>
-        <label class="contact-field">
-          <span>Worum geht es?</span>
-          <select name="projektart">
+        <div class="contact-field">
+          <span id="projektart-label">Worum geht es?</span>
+          <select name="projektart" data-custom-select aria-labelledby="projektart-label">
             <option value="">Bitte wählen</option>
             <option>Film</option>
             <option>Fotografie</option>
@@ -78,7 +80,7 @@
             <option>Social Media</option>
             <option>Etwas anderes</option>
           </select>
-        </label>
+        </div>
         <label class="contact-field">
           <span>Nachricht</span>
           <textarea name="message" rows="5" maxlength="3000" required></textarea>
@@ -95,7 +97,7 @@
     <div class="page-footer__meta">
       <div class="page-footer__col">
         <p class="page-footer__label">Kontakt</p>
-        <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
+        <a class="page-footer__mail" href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com <span>E-Mail</span></a>
         <a class="page-footer__ig" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">@framesbydenja <span>Instagram</span></a>
       </div>
       <div class="page-footer__col page-footer__col--pages">

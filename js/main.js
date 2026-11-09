@@ -109,6 +109,64 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Eigenes Dropdown (ersetzt die native Auswahlliste, behält das <select> für das Formular)
+  document.querySelectorAll('select[data-custom-select]').forEach((select) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'select';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'select__button';
+    button.setAttribute('aria-haspopup', 'listbox');
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-labelledby', select.getAttribute('aria-labelledby'));
+    const list = document.createElement('ul');
+    list.className = 'select__list';
+    list.setAttribute('role', 'listbox');
+    list.tabIndex = -1;
+    const items = [...select.options].map((option) => {
+      const item = document.createElement('li');
+      item.className = 'select__option';
+      item.setAttribute('role', 'option');
+      item.textContent = option.textContent;
+      item.dataset.value = option.value || option.textContent;
+      if (!option.value && option === select.options[0]) item.dataset.value = '';
+      list.append(item);
+      return item;
+    });
+    const sync = () => {
+      const index = select.selectedIndex;
+      button.textContent = select.options[index].textContent;
+      button.classList.toggle('is-placeholder', !select.value);
+      items.forEach((item, i) => item.setAttribute('aria-selected', String(i === index)));
+    };
+    const setOpen = (open) => {
+      wrap.classList.toggle('is-open', open);
+      button.setAttribute('aria-expanded', String(open));
+    };
+    button.addEventListener('click', () => setOpen(!wrap.classList.contains('is-open')));
+    items.forEach((item, i) => item.addEventListener('click', () => {
+      select.selectedIndex = i;
+      sync();
+      setOpen(false);
+      button.focus();
+    }));
+    document.addEventListener('click', (event) => { if (!wrap.contains(event.target)) setOpen(false); });
+    wrap.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') { setOpen(false); button.focus(); }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const next = Math.max(0, Math.min(items.length - 1, select.selectedIndex + (event.key === 'ArrowDown' ? 1 : -1)));
+        select.selectedIndex = next;
+        sync();
+      }
+    });
+    select.addEventListener('change', sync);
+    select.hidden = true;
+    wrap.append(button, list);
+    select.after(wrap);
+    sync();
+  });
+
   // Kontaktformular: Anfrage über Formspree senden
   const form = document.querySelector('[data-contact-form]');
   if (form) {
@@ -492,6 +550,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') showStage(stageIndex + 1, 1);
       if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') showStage(stageIndex - 1, -1);
     });
+  }
+
+  const backgroundVideo = document.querySelector('.contact-canvas__media video');
+  if (backgroundVideo) {
+    if (reduceMotion) backgroundVideo.pause();
+    else backgroundVideo.play()?.catch(() => {});
   }
 
   const hero = document.querySelector('.hero');

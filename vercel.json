@@ -1,0 +1,8 @@
+{
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/portfolio.html", "destination": "/portfolio/", "permanent": true },
+    { "source": "/contact.html", "destination": "/kontakt/", "permanent": true },
+    { "source": "/contact", "destination": "/kontakt/", "permanent": true }
+  ]
+}

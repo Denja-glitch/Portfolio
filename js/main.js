@@ -388,25 +388,6 @@ document.addEventListener('DOMContentLoaded', () => {
     footerReveal.classList.add('is-revealed');
   }
 
-  const contactClock = document.querySelector('[data-contact-clock]');
-  if (contactClock) {
-    const days = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA'];
-    const pad = (value) => String(value).padStart(2, '0');
-    const dayNode = contactClock.querySelector('[data-clock-day]');
-    const hoursNode = contactClock.querySelector('[data-clock-hours]');
-    const minutesNode = contactClock.querySelector('[data-clock-minutes]');
-    const secondsNode = contactClock.querySelector('[data-clock-seconds]');
-    const tick = () => {
-      const now = new Date();
-      dayNode.textContent = days[now.getDay()];
-      hoursNode.textContent = pad(now.getHours());
-      minutesNode.textContent = pad(now.getMinutes());
-      secondsNode.textContent = pad(now.getSeconds());
-    };
-    tick();
-    window.setInterval(tick, 1000);
-  }
-
   const lightbox = document.querySelector('[data-lightbox-dialog]');
   const lightboxTriggers = document.querySelectorAll('[data-lightbox]');
   if (lightbox && lightboxTriggers.length) {
@@ -761,23 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       updateHeroScroll();
       window.addEventListener('scroll', updateHeroScroll, { passive: true });
-
-      const portrait = document.querySelector('.statement__portrait');
-      const portraitImage = portrait?.querySelector('img');
-      if (portrait && portraitImage) {
-        const shift = document.createElement('div');
-        shift.className = 'portrait-shift';
-        portrait.insertBefore(shift, portraitImage);
-        shift.appendChild(portraitImage);
-        const updatePortrait = () => {
-          const rect = portrait.getBoundingClientRect();
-          const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
-          const offset = -22 + Math.min(1, Math.max(0, progress)) * 36;
-          shift.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
-        };
-        updatePortrait();
-        window.addEventListener('scroll', updatePortrait, { passive: true });
-      }
     }
   }
 

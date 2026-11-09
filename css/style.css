@@ -169,7 +169,6 @@ em { font-style: italic; }
 .about__copy { color: var(--muted); line-height: 1.65; margin: 1.75rem 0 0; }
 .about__portrait { aspect-ratio: 3 / 4; background: #d8d4cc; margin: 0; overflow: hidden; position: sticky; top: 2rem; }
 .about__portrait img { height: 100%; object-fit: cover; object-position: 48% 50%; width: 100%; }
-.about__portrait .portrait-shift { height: 114%; will-change: transform; }
 .about .text-link { margin-top: 1.15rem; }
 .home-voices { --quote-space: clamp(5.5rem, 10vw, 9rem); }
 .statement__title { font-family: var(--display); font-size: clamp(2.6rem, 6.4vw, 6.2rem); font-weight: 400; letter-spacing: -.09em; line-height: .9; margin: 0; text-align: center; }
@@ -958,7 +957,6 @@ a.page-footer__mark:hover span { color: inherit; }
   .line-rise,
   .section-heading .section-label,
   .section-heading > .text-link,
-  .about__portrait .portrait-shift { opacity: 1; transform: none; }
   .ink-char { color: inherit; transition: none; }
   .home-work:has(video):hover .home-work__media img { opacity: 1; }
   .home-work.reveal:not(.is-visible) .home-work__media img,

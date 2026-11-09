@@ -1214,3 +1214,9 @@ html.has-custom-cursor * { cursor: none !important; }
 @media (max-width: 700px) and (max-height: 640px) {
   .hero { height: 90svh; }
 }
+
+/* Foto-Lightbox: Slides bilden einen eigenen Stapel, Info-Box liegt immer davor */
+.photo-stage__slides { isolation: isolate; z-index: 1; }
+.photo-stage__sheet { touch-action: pan-y; z-index: 10; }
+.photo-stage__info { z-index: 11; }
+.photo-stage__bar { z-index: 9; }

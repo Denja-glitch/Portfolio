@@ -1163,7 +1163,7 @@ html:has(.kontakt-page) { background: var(--ink); }
 .contact-info a:hover { color: var(--accent); }
 
 .contact-form-section { padding-bottom: var(--block-gap); padding-top: clamp(1rem, 3vw, 2rem); }
-.contact-form-section .contact-form { max-width: 46rem; }
+.contact-form-section .contact-form { margin-inline: auto; max-width: 46rem; }
 .contact-form-section .contact-form { display: grid; gap: 1.8rem; }
 .contact-form__row { display: grid; gap: 1.8rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .contact-field { display: grid; gap: .3rem; }

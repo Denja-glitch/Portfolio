@@ -756,7 +756,7 @@ a.page-footer__mark:hover span { color: inherit; }
 .section-heading.reveal.is-visible .section-label,
 .section-heading.reveal.is-visible > .text-link { opacity: 1; transform: none; }
 .section-heading.reveal.is-visible > .text-link { transition-delay: .1s; }
-.ink-char { color: color-mix(in srgb, currentColor 24%, var(--paper)); transition: color .28s cubic-bezier(.65, 0, .35, 1); transition-delay: min(calc(var(--i) * 11ms), 1.7s); }
+.ink-char { color: color-mix(in srgb, currentColor 24%, var(--paper)); transition: color .2s cubic-bezier(.65, 0, .35, 1); transition-delay: min(calc(var(--i) * 11ms), 1.7s); }
 .ink-letters.reveal.is-visible .ink-char,
 .reveal.is-visible .ink-letters .ink-char { color: currentColor; }
 .project-card.reveal { filter: none; transform: translateY(2.25rem); }
@@ -1046,14 +1046,14 @@ html.has-custom-cursor * { cursor: none !important; }
 .home-works { padding-top: var(--block-gap); }
 
 /* Zitate erscheinen nacheinander */
-.film-quotes figure:nth-child(1) .ink-char { transition-delay: calc(.2s + min(calc(var(--i) * 18ms), 2s)); }
-.film-quotes figure:nth-child(2) .ink-char { transition-delay: calc(1.9s + min(calc(var(--i) * 18ms), 2s)); }
-.film-quotes figure:nth-child(3) .ink-char { transition-delay: calc(3.5s + min(calc(var(--i) * 18ms), 2s)); }
+.film-quotes figure:nth-child(1) .ink-char { transition-delay: calc(.1s + min(calc(var(--i) * 8ms), 1s)); }
+.film-quotes figure:nth-child(2) .ink-char { transition-delay: calc(.9s + min(calc(var(--i) * 8ms), 1s)); }
+.film-quotes figure:nth-child(3) .ink-char { transition-delay: calc(1.7s + min(calc(var(--i) * 8ms), 1s)); }
 
 .film-quotes.is-visible figcaption { opacity: 1; }
-.film-quotes.is-visible figure:nth-child(1) figcaption { transition-delay: 1.6s; }
-.film-quotes.is-visible figure:nth-child(2) figcaption { transition-delay: 3.2s; }
-.film-quotes.is-visible figure:nth-child(3) figcaption { transition-delay: 4.8s; }
+.film-quotes.is-visible figure:nth-child(1) figcaption { transition-delay: .8s; }
+.film-quotes.is-visible figure:nth-child(2) figcaption { transition-delay: 1.6s; }
+.film-quotes.is-visible figure:nth-child(3) figcaption { transition-delay: 2.4s; }
 @media (prefers-reduced-motion: reduce) {
   .film-quotes figcaption { opacity: 1; transition: none; }}
 
@@ -1232,3 +1232,12 @@ html:has(.kontakt-page) { background: var(--ink); }
   .page-footer__mail { align-items: baseline; display: flex; }
   .page-footer__mail span { display: inline; }
 }
+
+.hero__role { bottom: clamp(2.4rem, 5.5vw, 3.4rem); color: rgba(255, 255, 255, .8); font-size: .68rem; letter-spacing: .14em; margin: 0; position: absolute; right: var(--page-pad); text-align: right; text-transform: uppercase; z-index: 2; }
+.home-signature { color: var(--muted); font-size: .68rem; letter-spacing: .14em; margin: clamp(3rem, 6vw, 4.5rem) 0 0; text-align: center; text-transform: uppercase; }
+@media (max-width: 700px) {
+  .hero__role { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); font-size: .6rem; }
+}
+.hero__role { opacity: 0; transition: opacity 1s var(--ease) 1s; }
+.hero.is-open .hero__role { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .hero__role { opacity: 1; transition: none; } }

@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Desktop: Beim Scrollen verwandelt sich die Navigation in eine kleine, schwebende Lightbox
   const siteHeader = document.querySelector('.site-header');
   const desktopQuery = window.matchMedia('(min-width: 701px)');
-  if (siteHeader) {
+  if (siteHeader && !document.body.matches('.about-page, .kontakt-page')) {
     const links = siteHeader.querySelectorAll('.main-nav .nav-link, .header-contact');
     const floatNav = document.createElement('nav');
     floatNav.className = 'float-nav';
@@ -1361,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Magnetische Elemente: ziehen sich leicht zum Cursor.
   if (canHoverPreview && !reduceMotion) {
-    document.querySelectorAll('.header-contact, .filter-button, .text-link').forEach((el) => {
+    document.querySelectorAll('.header-contact, .filter-button, .page-footer__cta, .text-link').forEach((el) => {
       el.classList.add('is-magnetic');
       el.addEventListener('mousemove', (event) => {
         const rect = el.getBoundingClientRect();

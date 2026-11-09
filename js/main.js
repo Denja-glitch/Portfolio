@@ -109,6 +109,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Kontaktformular: Anfrage über Formspree senden
+  const form = document.querySelector('[data-contact-form]');
+  if (form) {
+    const status = document.querySelector('[data-contact-status]');
+    const submit = form.querySelector('[type="submit"]');
+    const fallback = 'Das hat leider nicht geklappt. Schreib mir direkt an <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>.';
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submit.disabled = true;
+      status.textContent = 'Wird gesendet …';
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error(String(response.status));
+        form.reset();
+        status.textContent = 'Danke dir! Ich melde mich bald bei dir.';
+      } catch (error) {
+        status.innerHTML = fallback;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+
   const footerReveal = document.querySelector('.page-footer--reveal');
   if (footerReveal && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const footerRevealObserver = new IntersectionObserver((entries) => {
@@ -1088,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Magnetische Elemente: ziehen sich leicht zum Cursor.
   if (canHoverPreview && !reduceMotion) {
-    document.querySelectorAll('.header-contact, .filter-button, .page-footer__cta, .text-link, .contact-mail').forEach((el) => {
+    document.querySelectorAll('.header-contact, .filter-button, .page-footer__cta, .text-link').forEach((el) => {
       el.classList.add('is-magnetic');
       el.addEventListener('mousemove', (event) => {
         const rect = el.getBoundingClientRect();

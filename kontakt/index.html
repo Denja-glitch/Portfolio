@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/main.js" defer></script>
 </head>
-<body class="contact-page" id="top">
-  <header class="site-header">
+<body class="kontakt-page" id="top">
+  <header class="site-header site-header--overlay">
     <a class="wordmark" href="../" aria-label="Startseite">DA<span>.</span></a>
     <nav class="main-nav" aria-label="Hauptnavigation">
       <a class="nav-link" href="../portfolio/">Meine Arbeiten</a>
@@ -34,40 +34,60 @@
     </div>
   </div>
 
-  <main>
+  <main class="contact-canvas">
+    <div class="contact-canvas__media" aria-hidden="true">
+      <img src="../assets/images/Still_Simons_Kaffee_Close-2048x1152.jpg" alt="">
+    </div>
+
     <section class="contact-stage section-pad" aria-labelledby="contact-title">
-      <div class="contact-time reveal">
-        <p class="contact-prompt">Hast du Zeit?</p>
-        <div class="contact-clock" data-contact-clock aria-label="Aktuelle Uhrzeit">
-          <div class="contact-clock__cell">
-            <span data-clock-day>FR</span>
-            <span class="contact-clock__label">Tag</span>
-          </div>
-          <span class="contact-clock__sep" aria-hidden="true">:</span>
-          <div class="contact-clock__cell">
-            <span data-clock-hours>00</span>
-            <span class="contact-clock__label">Stunden</span>
-          </div>
-          <span class="contact-clock__sep" aria-hidden="true">:</span>
-          <div class="contact-clock__cell">
-            <span data-clock-minutes>00</span>
-            <span class="contact-clock__label">Minuten</span>
-          </div>
-          <span class="contact-clock__sep" aria-hidden="true">:</span>
-          <div class="contact-clock__cell">
-            <span data-clock-seconds>00</span>
-            <span class="contact-clock__label">Sekunden</span>
-          </div>
+      <div class="contact-info">
+        <div class="contact-info__col">
+          <p class="contact-info__label">E-Mail</p>
+          <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>
+        </div>
+        <div class="contact-info__col">
+          <p class="contact-info__label">Socials</p>
+          <a href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">@framesbydenja</a>
         </div>
       </div>
-      <div class="contact-body">
-        <h1 id="contact-title" class="page-title split-title reveal"><span>Gemeinsam</span><em>kreieren.</em></h1>
-        <div class="contact-copy reveal">
-          <p class="ink-letters">Lass uns Zeit nehmen, um über neue Ideen, spannende Kollaborationen und gemeinsame Visionen zu sprechen.</p>
-          <a class="contact-mail" href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com <span class="icon-arrow" aria-hidden="true"></span></a>
-          <a class="contact-social" href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">@framesbydenja <span>Instagram</span></a>
-        </div>
+      <h1 id="contact-title" class="page-title split-title reveal"><span>Gemeinsam</span><em>kreieren.</em></h1>
+    </section>
+
+    <section class="contact-form-section section-pad" id="formular" aria-labelledby="contact-form-title">
+      <div class="contact-form-section__head reveal">
+        <h2 id="contact-form-title" class="contact-form__title">Hast du <em>Zeit?</em></h2>
       </div>
+      <form class="contact-form reveal" action="https://formspree.io/f/xkjjllyj" method="POST" data-contact-form>
+        <div class="contact-form__row">
+          <label class="contact-field">
+            <span>Name</span>
+            <input type="text" name="name" autocomplete="name" maxlength="100" required>
+          </label>
+          <label class="contact-field">
+            <span>E-Mail</span>
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+        </div>
+        <label class="contact-field">
+          <span>Worum geht es?</span>
+          <select name="projektart">
+            <option value="">Bitte wählen</option>
+            <option>Film</option>
+            <option>Fotografie</option>
+            <option>Event</option>
+            <option>Social Media</option>
+            <option>Etwas anderes</option>
+          </select>
+        </label>
+        <label class="contact-field">
+          <span>Nachricht</span>
+          <textarea name="message" rows="5" maxlength="3000" required></textarea>
+        </label>
+        <input type="hidden" name="_subject" value="Neue Anfrage über das Portfolio">
+        <input class="contact-form__trap" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="contact-form__submit" type="submit">Senden</button>
+        <p class="contact-form__status" role="status" aria-live="polite" data-contact-status></p>
+      </form>
     </section>
   </main>
 
@@ -89,7 +109,6 @@
         <a href="https://www.instagram.com/framesbydenja/" target="_blank" rel="noreferrer">Instagram</a>
         <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" data-linkedin>LinkedIn</a>
       </div>
-      <a class="page-footer__top-link" href="#top">Nach oben ↑</a>
     </div>
     <a class="page-footer__mark" href="../ueber-mich/" aria-label="Über mich">Denja Amstutz<span>.</span></a>
     <div class="page-footer__bottom">

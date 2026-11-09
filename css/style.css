@@ -1241,3 +1241,41 @@ html:has(.kontakt-page) { background: var(--ink); }
 .hero__role { opacity: 0; transition: opacity 1s var(--ease) 1s; }
 .hero.is-open .hero__role { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .hero__role { opacity: 1; transition: none; } }
+
+/* Schwebende Navigation (Desktop) */
+.float-nav { align-items: center; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(15, 15, 13, .78); border: 1px solid rgba(243, 241, 236, .12); border-radius: 1.2rem; box-shadow: 0 1rem 3rem rgba(0, 0, 0, .3); clip-path: inset(0 40% 100% 40% round 1.2rem); display: none; gap: .15rem; left: 50%; opacity: 0; padding: .4rem; pointer-events: none; position: fixed; top: 1rem; transform: translate(-50%, -.6rem); transition: clip-path .75s var(--ease), opacity .4s var(--ease), transform .75s var(--ease); z-index: 30; }
+@media (min-width: 701px) { .float-nav { display: flex; } }
+.float-nav.is-visible { clip-path: inset(0 round 1.2rem); opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+.float-nav__link { border-radius: .85rem; color: rgba(243, 241, 236, .78); font-size: .68rem; letter-spacing: .09em; padding: .7rem 1rem; text-transform: uppercase; transition: background .3s var(--ease), color .3s var(--ease); white-space: nowrap; }
+.float-nav__link:hover,
+.float-nav__link:focus-visible { background: rgba(243, 241, 236, .1); color: #f3f1ec; outline: 0; }
+.float-nav__link.is-active { background: rgba(243, 241, 236, .12); color: #f3f1ec; }
+.float-nav__home { font-family: var(--display); font-size: 1rem; font-weight: 600; letter-spacing: -.06em; padding-inline: .9rem; text-transform: none; }
+.float-nav__cta { background: #f3f1ec; color: #11110f; margin-left: .25rem; }
+.float-nav__cta:hover,
+.float-nav__cta:focus-visible { background: var(--accent); color: #fff; }
+@media (prefers-reduced-motion: reduce) { .float-nav { transition: opacity .2s; } }
+
+/* Danke-Popup nach dem Absenden des Formulars */
+.thanks { --lb-radius: clamp(1rem, 2vw, 1.6rem); align-items: center; display: flex; inset: 0; justify-content: center; opacity: 0; padding: 1.5rem; pointer-events: none; position: fixed; transition: opacity .6s var(--ease); z-index: 60; }
+.thanks.is-open { opacity: 1; pointer-events: auto; }
+.thanks__backdrop { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(10, 10, 9, .7); inset: 0; position: absolute; }
+.thanks__panel { background: #0f0f0d; border: 1px solid rgba(243, 241, 236, .1); border-radius: var(--lb-radius); box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .45); clip-path: inset(46% 20% 46% 20% round var(--lb-radius)); color: #f3f1ec; max-width: 34rem; padding: clamp(2rem, 5vw, 3.2rem); position: relative; transition: clip-path 1s var(--ease); width: 100%; }
+.thanks.is-open .thanks__panel { clip-path: inset(0 round var(--lb-radius)); }
+.thanks__eyebrow,
+.thanks__title,
+.thanks__text,
+.thanks__script { opacity: 0; transform: translateY(.9rem); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.thanks.is-open :is(.thanks__eyebrow, .thanks__title, .thanks__text) { opacity: 1; transform: none; }
+.thanks.is-open .thanks__eyebrow { transition-delay: .35s; }
+.thanks.is-open .thanks__title { transition-delay: .45s; }
+.thanks.is-open .thanks__text { transition-delay: .6s; }
+.thanks__eyebrow { color: rgba(243, 241, 236, .55); font-size: .62rem; letter-spacing: .14em; margin: 0 0 1.2rem; text-transform: uppercase; }
+.thanks__title { font-family: var(--display); font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 400; letter-spacing: -.07em; line-height: 1; margin: 0 0 1.2rem; }
+.thanks__text { color: rgba(243, 241, 236, .75); font-size: .92rem; line-height: 1.6; margin: 0; max-width: 26rem; }
+.thanks__script { clip-path: inset(-40% 100% -60% -20%); color: var(--accent); display: block; font-family: "Mrs Saint Delafield", "Snell Roundhand", "Segoe Script", cursive; font-size: clamp(3.4rem, 9vw, 5rem); line-height: 1.1; margin-top: 1.6rem; opacity: 1; padding: .1em .4em .2em .15em; transform: rotate(-4deg); transform-origin: left center; transition: clip-path 1.6s cubic-bezier(.65, 0, .35, 1) .9s; width: fit-content; }
+.thanks.is-open .thanks__script { clip-path: inset(-40% -20% -60% -20%); }
+.thanks__close { align-items: center; background: none; border: 1px solid rgba(243, 241, 236, .2); border-radius: 50%; color: inherit; cursor: pointer; display: flex; font-size: 1.4rem; height: 2.5rem; justify-content: center; line-height: 1; position: absolute; right: 1rem; top: 1rem; transition: background .3s var(--ease); width: 2.5rem; }
+.thanks__close:hover,
+.thanks__close:focus-visible { background: rgba(243, 241, 236, .12); outline: 0; }
+@media (prefers-reduced-motion: reduce) { .thanks__panel, .thanks__script { clip-path: none !important; transition: none; } .thanks__eyebrow, .thanks__title, .thanks__text { transform: none; } }

@@ -167,6 +167,85 @@ document.addEventListener('DOMContentLoaded', () => {
     sync();
   });
 
+  // Desktop: Beim Scrollen verwandelt sich die Navigation in eine kleine, schwebende Lightbox
+  const siteHeader = document.querySelector('.site-header');
+  const desktopQuery = window.matchMedia('(min-width: 701px)');
+  if (siteHeader) {
+    const links = siteHeader.querySelectorAll('.main-nav .nav-link, .header-contact');
+    const floatNav = document.createElement('nav');
+    floatNav.className = 'float-nav';
+    floatNav.setAttribute('aria-label', 'Schnellnavigation');
+    floatNav.setAttribute('aria-hidden', 'true');
+    const home = siteHeader.querySelector('.wordmark');
+    const items = [];
+    if (home) items.push({ href: home.getAttribute('href'), text: 'DA.', cls: 'float-nav__home', label: 'Startseite' });
+    links.forEach((link) => {
+      const isContact = link.classList.contains('header-contact');
+      items.push({
+        href: link.getAttribute('href'),
+        text: isContact ? "Let's Talk" : link.textContent.trim(),
+        cls: isContact ? 'float-nav__cta' : '',
+        active: link.classList.contains('is-active')
+      });
+    });
+    items.forEach((item) => {
+      const a = document.createElement('a');
+      a.href = item.href;
+      a.textContent = item.text;
+      a.className = `float-nav__link ${item.cls}`.trim();
+      a.tabIndex = -1;
+      if (item.label) a.setAttribute('aria-label', item.label);
+      if (item.active) a.classList.add('is-active');
+      floatNav.append(a);
+    });
+    document.body.append(floatNav);
+    const floatLinks = [...floatNav.querySelectorAll('a')];
+    const updateFloatNav = () => {
+      const overlayOpen = document.body.classList.contains('is-scroll-locked');
+      const show = desktopQuery.matches && !overlayOpen && window.scrollY > siteHeader.offsetHeight + 80;
+      floatNav.classList.toggle('is-visible', show);
+      floatNav.setAttribute('aria-hidden', String(!show));
+      floatLinks.forEach((a) => { a.tabIndex = show ? 0 : -1; });
+    };
+    window.addEventListener('scroll', updateFloatNav, { passive: true });
+    window.addEventListener('resize', updateFloatNav);
+    new MutationObserver(updateFloatNav).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    updateFloatNav();
+  }
+
+  // Danke-Popup nach dem Absenden
+  const showThanks = (name) => {
+    const first = (name || '').trim().split(/\s+/)[0];
+    const overlay = document.createElement('div');
+    overlay.className = 'thanks';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'thanks-title');
+    overlay.innerHTML = '<div class="thanks__backdrop" data-thanks-close></div>'
+      + '<div class="thanks__panel">'
+      + '<button class="thanks__close" type="button" data-thanks-close aria-label="Schliessen">&times;</button>'
+      + '<p class="thanks__eyebrow">Nachricht gesendet</p>'
+      + '<h2 class="thanks__title" id="thanks-title"></h2>'
+      + '<p class="thanks__text">Schön, dass du dich meldest. Ich lese deine Nachricht in Ruhe und antworte dir persönlich, meistens innerhalb von zwei Tagen.</p>'
+      + '<span class="thanks__script" aria-hidden="true">Denja</span>'
+      + '</div>';
+    overlay.querySelector('#thanks-title').textContent = first ? `Danke dir, ${first}.` : 'Danke dir.';
+    document.body.append(overlay);
+    lockScroll();
+    const close = () => {
+      overlay.classList.remove('is-open');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => { overlay.remove(); unlockScroll(); }, 700);
+    };
+    const onKey = (event) => { if (event.key === 'Escape') close(); };
+    overlay.querySelectorAll('[data-thanks-close]').forEach((el) => el.addEventListener('click', close));
+    document.addEventListener('keydown', onKey);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      overlay.classList.add('is-open');
+      overlay.querySelector('.thanks__close').focus({ preventScroll: true });
+    }));
+  };
+
   // Kontaktformular: Anfrage über Formspree senden
   const form = document.querySelector('[data-contact-form]');
   if (form) {
@@ -184,8 +263,11 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: { Accept: 'application/json' }
         });
         if (!response.ok) throw new Error(String(response.status));
+        const senderName = new FormData(form).get('name');
         form.reset();
+        form.querySelectorAll('select[data-custom-select]').forEach((select) => select.dispatchEvent(new Event('change')));
         status.textContent = 'Danke dir! Ich melde mich bald bei dir.';
+        showThanks(senderName);
       } catch (error) {
         status.innerHTML = fallback;
       } finally {

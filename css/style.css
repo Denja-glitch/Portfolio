@@ -646,7 +646,7 @@ a.page-footer__mark:hover span { color: inherit; }
 
 .reel-feed { align-items: center; color: var(--ink); display: flex; inset: 0; justify-content: center; opacity: 0; padding: 1.5rem; pointer-events: none; position: fixed; transition: opacity .85s var(--ease); z-index: 24; }
 .reel-feed.is-open { opacity: 1; pointer-events: auto; }
-.reel-feed__backdrop { backdrop-filter: blur(6px); background: rgba(10, 10, 9, .72); inset: 0; position: absolute; }
+.reel-feed__backdrop { background: rgba(239, 236, 230, .78); inset: 0; position: absolute; }
 .reel-feed__panel {background: var(--white); border: 1px solid rgba(17, 17, 15, .08); box-shadow: 0 1.5rem 4rem rgba(17, 17, 15, .08); clip-path: inset(48% 12% 48% 12%); max-height: calc(100vh - 3rem); max-width: 78rem; overflow: auto; padding: 0 clamp(1.15rem, 2.8vw, 2.5rem) 2.25rem; position: relative; transition: clip-path 1.05s var(--ease); width: min(100%, 78rem); z-index: 1; overscroll-behavior: contain;}
 .reel-feed.is-open .reel-feed__panel { clip-path: inset(0); }
 .reel-feed__bar { margin: 0 0 1.15rem; padding-right: 2.75rem; padding-top: 2.55rem; }
@@ -1130,15 +1130,12 @@ html.has-custom-cursor * { cursor: none !important; }
 /* Responsive Feinschliff: mehr Luft und ein kürzerer Hero auf dem Handy */
 @media (max-width: 700px) {
   :root { --block-gap: clamp(6rem, 24vw, 8rem); }
-  .hero { height: 82svh; min-height: 28rem; }
+  .hero { height: 100vh; height: 100svh; min-height: 0; }
   .hero__content { padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)); }
   .home-works .section-heading { margin-bottom: 2.5rem; }
   .home-works__grid { row-gap: 3.25rem; }
   .home-voices { padding-top: clamp(1rem, 6vw, 2.5rem); }
   .film-quotes { gap: 3rem; margin-top: 3.5rem; }
-}
-@media (max-width: 700px) and (max-height: 640px) {
-  .hero { height: 90svh; }
 }
 
 /* Foto-Lightbox: Slides bilden einen eigenen Stapel, Info-Box liegt immer davor */
@@ -1208,24 +1205,10 @@ html:has(.kontakt-page) { background: var(--ink); }
   .contact-field :is(input, select) { min-height: 44px; }
 }
 
-/* Reel-Feed: dunkel und abgerundet wie die Lightbox */
-.reel-feed {
-  --white: #0f0f0d;
-  --paper: #0f0f0d;
-  --ink: #f3f1ec;
-  --muted: rgba(243, 241, 236, .62);
-  --lb-radius: clamp(1rem, 2vw, 1.6rem);
-  color: var(--ink);
-}
-.reel-feed__panel { border: 1px solid rgba(243, 241, 236, .1); border-radius: var(--lb-radius); box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .45); clip-path: inset(48% 12% 48% 12% round var(--lb-radius)); }
+/* Reel-Feed: helles Original, nur abgerundet */
+.reel-feed { --lb-radius: clamp(1rem, 2vw, 1.6rem); }
+.reel-feed__panel { border-radius: var(--lb-radius); clip-path: inset(48% 12% 48% 12% round var(--lb-radius)); }
 .reel-feed.is-open .reel-feed__panel { clip-path: inset(0 round var(--lb-radius)); }
-.reel-feed__close { border-radius: 50%; }
-.reel-feed__progress { border-color: rgba(243, 241, 236, .35); }
-.reel-card,
-.reel-card__media { background: #1a1a17; }
-@media (max-width: 700px) {
-  .reel-feed__panel { border-radius: var(--lb-radius); }
-}
 
 /* Eigenes Dropdown im Stil der Lightbox */
 .select { position: relative; }
@@ -1244,3 +1227,8 @@ html:has(.kontakt-page) { background: var(--ink); }
 
 /* Footer: E-Mail mit Label */
 .page-footer__mail span { display: none; color: rgba(255, 255, 255, .42); font-size: .62rem; letter-spacing: .1em; margin-left: .6rem; text-transform: uppercase; }
+
+@media (max-width: 700px) {
+  .page-footer__mail { align-items: baseline; display: flex; }
+  .page-footer__mail span { display: inline; }
+}

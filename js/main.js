@@ -895,6 +895,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         projectGrid?.classList.toggle('is-filtered', selectedFilter !== 'all');
+        if (projectGrid) projectGrid.dataset.filter = selectedFilter;
+        if (projectGrid) projectGrid.dataset.filter = selectedFilter;
         window.clearTimeout(filterTimer);
         projectCards.forEach((card) => card.classList.add('is-filtering'));
 
@@ -1010,11 +1012,6 @@ document.addEventListener('DOMContentLoaded', () => {
             title: 'Zenith Unboxing',
             alt: 'Grüne Zenith-Uhr in geöffneter Box, Logo im Deckel',
             so: 2.4
-          }),
-          cloudinaryVideo('video_2', '1789981735', {
-            title: 'Blancpain Unterwegs im Bentley',
-            alt: 'Frau am Steuer eines grauen Bentley, Embassyschriftzug auf der Tür',
-            so: 5
           }),
           cloudinaryVideo('video_19', '1789981739', {
             title: 'Bvlgari Afternoon Tea',

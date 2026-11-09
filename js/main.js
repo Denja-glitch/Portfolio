@@ -213,6 +213,105 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFloatNav();
   }
 
+  // Unterschrift: wird entlang der Tinte geschrieben (Füllung breitet sich vom Anfang der Schrift aus)
+  const signatureUrl = new URL('../assets/images/Unterschrift_Denja.svg', document.querySelector('script[src*="main.js"]')?.src || document.baseURI).href;
+  let signaturePromise = null;
+  const loadSignature = (width) => {
+    signaturePromise = signaturePromise || fetch(signatureUrl)
+      .then((response) => response.text())
+      .then((text) => {
+        const svg = text.replace(/\.cls-2\s*\{[^}]*\}/, '.cls-2 { fill: #000; stroke: none; }');
+        const viewBox = svg.match(/viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/);
+        const ratio = viewBox ? Number(viewBox[2]) / Number(viewBox[1]) : 0.75;
+        const height = Math.round(width * ratio);
+        const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => {
+            const buffer = document.createElement('canvas');
+            buffer.width = width;
+            buffer.height = height;
+            const ctx = buffer.getContext('2d', { willReadFrequently: true });
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(image, 0, 0, width, height);
+            URL.revokeObjectURL(url);
+            const pixels = ctx.getImageData(0, 0, width, height).data;
+            const total = width * height;
+            const cover = new Uint8Array(total);
+            let start = -1;
+            let startX = width;
+            for (let i = 0; i < total; i += 1) {
+              const value = 255 - pixels[i * 4];
+              cover[i] = value;
+              if (value > 140) {
+                const x = i % width;
+                if (x < startX) { startX = x; start = i; }
+              }
+            }
+            const dist = new Int32Array(total).fill(-1);
+            const queue = new Int32Array(total);
+            let head = 0;
+            let tail = 0;
+            let max = 0;
+            if (start >= 0) { dist[start] = 0; queue[tail++] = start; }
+            while (head < tail) {
+              const index = queue[head++];
+              const x = index % width;
+              const next = dist[index] + 1;
+              const around = [x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1, index - width, index + width];
+              for (let k = 0; k < 4; k += 1) {
+                const n = around[k];
+                if (n < 0 || n >= total || dist[n] !== -1 || cover[n] < 60) continue;
+                dist[n] = next;
+                if (next > max) max = next;
+                queue[tail++] = n;
+              }
+            }
+            // Getrennte Teile (z. B. der Punkt auf dem i) erscheinen am Schluss
+            for (let i = 0; i < total; i += 1) if (dist[i] === -1 && cover[i] > 0) dist[i] = max + 12;
+            resolve({ width, height, cover, dist, max: max + 12 });
+          };
+          image.onerror = reject;
+          image.src = url;
+        });
+      });
+    return signaturePromise;
+  };
+  const writeSignature = (canvas, isActive) => {
+    const width = 560;
+    loadSignature(width).then((data) => {
+      canvas.width = data.width;
+      canvas.height = data.height;
+      const ctx = canvas.getContext('2d');
+      const image = ctx.createImageData(data.width, data.height);
+      const [r, g, b] = [92, 118, 80];
+      const paint = (front) => {
+        const out = image.data;
+        for (let i = 0; i < data.cover.length; i += 1) {
+          const k = i * 4;
+          const reach = Math.min(1, Math.max(0, (front - data.dist[i]) / 10));
+          out[k] = r; out[k + 1] = g; out[k + 2] = b;
+          out[k + 3] = data.dist[i] < 0 ? 0 : data.cover[i] * reach;
+        }
+        ctx.putImageData(image, 0, 0);
+      };
+      if (reduceMotion) { paint(data.max + 20); return; }
+      paint(-20);
+      const delay = 1100;
+      const duration = 2600;
+      const begin = performance.now() + delay;
+      const tick = (now) => {
+        if (!isActive()) return;
+        const t = Math.min(1, Math.max(0, (now - begin) / duration));
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        paint(eased * (data.max + 20));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }).catch(() => {});
+  };
+
   // Danke-Popup nach dem Absenden
   const showThanks = (name) => {
     const first = (name || '').trim().split(/\s+/)[0];
@@ -227,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
       + '<p class="thanks__eyebrow">Nachricht gesendet</p>'
       + '<h2 class="thanks__title" id="thanks-title"></h2>'
       + '<p class="thanks__text">Schön, dass du dich meldest. Ich lese deine Nachricht in Ruhe und antworte dir persönlich, meistens innerhalb von zwei Tagen.</p>'
-      + '<span class="thanks__script" aria-hidden="true">Denja</span>'
+      + '<canvas class="thanks__script" aria-hidden="true"></canvas>'
       + '</div>';
     overlay.querySelector('#thanks-title').textContent = first ? `Danke dir, ${first}.` : 'Danke dir.';
     document.body.append(overlay);
@@ -240,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const onKey = (event) => { if (event.key === 'Escape') close(); };
     overlay.querySelectorAll('[data-thanks-close]').forEach((el) => el.addEventListener('click', close));
     document.addEventListener('keydown', onKey);
+    writeSignature(overlay.querySelector('.thanks__script'), () => overlay.isConnected);
     requestAnimationFrame(() => requestAnimationFrame(() => {
       overlay.classList.add('is-open');
       overlay.querySelector('.thanks__close').focus({ preventScroll: true });
@@ -1261,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Magnetische Elemente: ziehen sich leicht zum Cursor.
   if (canHoverPreview && !reduceMotion) {
-    document.querySelectorAll('.header-contact, .filter-button, .page-footer__cta, .text-link').forEach((el) => {
+    document.querySelectorAll('.header-contact, .filter-button, .text-link').forEach((el) => {
       el.classList.add('is-magnetic');
       el.addEventListener('mousemove', (event) => {
         const rect = el.getBoundingClientRect();

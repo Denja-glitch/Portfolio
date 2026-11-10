@@ -188,6 +188,7 @@ em { font-style: italic; }
 .home-works .section-heading .text-link { margin-top: 0; }
 .home-works__grid { display: grid; gap: clamp(2rem, 4vw, 3.5rem) clamp(1.25rem, 2.2vw, 2rem); grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .home-work { color: inherit; display: block; }
+.home-work--mobile { display: none; }
 .home-work__media { aspect-ratio: 16 / 9; background: #d8d4cc; overflow: hidden; position: relative; }
 .home-work__media video { height: 100%; inset: 0; object-fit: cover; position: absolute; width: 100%; }
 .home-work__media img { height: 100%; object-fit: cover; position: relative; transition: filter 1.35s var(--ease), opacity .45s var(--ease), transform 1.35s var(--ease); width: 100%; z-index: 1; }
@@ -859,7 +860,11 @@ a.page-footer__mark:hover span { color: inherit; }
   .section-heading h2 { font-size: clamp(1.85rem, 9vw, 2.8rem); }
   .section-heading .text-link,
   .home-works .section-heading .text-link { margin-top: 1.5rem; }
-  .home-works__grid { grid-template-columns: 1fr; }
+  .home-works__grid { display: flex; gap: 1rem; margin-inline: calc(var(--page-pad) * -1); overflow-x: auto; padding: 0 var(--page-pad) 1.5rem; scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .home-works__grid::-webkit-scrollbar { display: none; }
+  .home-work { flex: 0 0 74vw; scroll-snap-align: start; }
+  .home-work--mobile { display: block; }
+  .home-work__media { aspect-ratio: 4 / 5; max-height: 52svh; }
   .home-work__meta { display: block; }
   .home-work__meta span { display: block; margin-top: .25rem; }
   .arbeiten-intro { padding-bottom: clamp(2.75rem, 8vw, 4rem); padding-top: clamp(3.5rem, 12vw, 5.25rem); }
@@ -885,6 +890,8 @@ a.page-footer__mark:hover span { color: inherit; }
     overflow-wrap: anywhere;
   }
   .page-footer__bottom { gap: 1rem; }
+  /* Footer auf allen Unterseiten wie auf der Startseite: gleiche Höhe und Aufteilung */
+  .page-footer:not(.page-footer--reveal) { display: flex; flex-direction: column; justify-content: space-between; margin-top: 0; min-height: min(92svh, 38rem); }
   .home-page,
   .arbeiten-page { --footer-reveal: min(92svh, 38rem); }
   .home-page main { box-shadow: 0 18px 40px rgba(0, 0, 0, .22); }
@@ -1129,10 +1136,14 @@ html.has-custom-cursor * { cursor: none !important; }
   :root { --block-gap: clamp(6rem, 24vw, 8rem); }
   .hero { height: 100vh; height: 100svh; min-height: 0; }
   .hero__content { padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px)); }
-  .home-works .section-heading { margin-bottom: 2.5rem; }
+  .home-page main { display: flex; flex-direction: column; }
+  .hero { order: 0; }
+  .home-works { display: flex; flex-direction: column; justify-content: center; min-height: 100vh; min-height: 100svh; padding-block: 4rem calc(6rem + env(safe-area-inset-bottom, 0px)); }
+  .home-works .section-heading { display: flex; flex-direction: column; margin-bottom: 1rem; }
+  .home-works .section-heading .text-link { align-self: flex-end; margin-top: 2.5rem; }
   .home-works__grid { row-gap: 3.25rem; }
-  .home-voices { padding-top: clamp(1rem, 6vw, 2.5rem); }
-  .film-quotes { gap: 3rem; margin-top: 3.5rem; }
+  .home-work.reveal { transition: none; }
+  .contact-info__col--socials { display: none; }
 }
 
 /* Foto-Lightbox: Slides bilden einen eigenen Stapel, Info-Box liegt immer davor */
@@ -1228,14 +1239,6 @@ html:has(.kontakt-page) { background: var(--ink); }
   .page-footer__mail { align-items: baseline; display: flex; }
   .page-footer__mail span { display: inline; }
 }
-
-.hero__role { bottom: clamp(2.4rem, 5.5vw, 3.4rem); color: rgba(255, 255, 255, .8); font-size: .68rem; letter-spacing: .14em; margin: 0; position: absolute; right: var(--page-pad); text-align: right; text-transform: uppercase; z-index: 2; }
-@media (max-width: 700px) {
-  .hero__role { bottom: calc(7.4rem + env(safe-area-inset-bottom, 0px)); font-size: .6rem; }
-}
-.hero__role { opacity: 0; transition: opacity 1s var(--ease) 1s; }
-.hero.is-open .hero__role { opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .hero__role { opacity: 1; transition: none; } }
 
 /* Schwebende Navigation (Desktop) */
 .float-nav { align-items: center; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(15, 15, 13, .78); border: 1px solid rgba(243, 241, 236, .12); border-radius: 1.2rem; box-shadow: 0 1rem 3rem rgba(0, 0, 0, .3); clip-path: inset(0 40% 100% 40% round 1.2rem); display: none; gap: .15rem; left: 50%; opacity: 0; padding: .4rem; pointer-events: none; position: fixed; top: 1rem; transform: translate(-50%, -.6rem); transition: clip-path .75s var(--ease), opacity .4s var(--ease), transform .75s var(--ease); z-index: 30; }

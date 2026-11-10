@@ -1321,4 +1321,47 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', queueScrollEffects, { passive: true });
   window.addEventListener('resize', queueScrollEffects);
   updateScrollEffects();
+  // Startseite: Arbeiten erscheinen gestapelt in der Mitte, einzeln eingeblendet, und fächern sich dann auf
+  const worksGrid = document.querySelector('.home-works__grid');
+  if (worksGrid && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && worksGrid.animate) {
+    const isMobile = window.matchMedia('(max-width: 700px)').matches;
+    const workCards = [...worksGrid.querySelectorAll('.home-work')].filter((card) => card.offsetParent !== null);
+    workCards.forEach((card) => { card.style.opacity = '0'; });
+    const playWorksIntro = () => {
+      const gridRect = worksGrid.getBoundingClientRect();
+      const centerX = gridRect.left + gridRect.width / 2;
+      const centerY = isMobile ? null : gridRect.top + gridRect.height / 2;
+      const stackScale = isMobile ? 0.42 : 0.5;
+      const appear = 0.12;
+      const spreadStart = 0.2 + workCards.length * appear;
+      const spreadStep = 0.07;
+      const spreadTime = 0.95;
+      const total = spreadStart + (workCards.length - 1) * spreadStep + spreadTime;
+      workCards.forEach((card, i) => {
+        card.classList.add('is-visible');
+        const rect = card.getBoundingClientRect();
+        const dx = centerX - (rect.left + rect.width / 2);
+        const dy = centerY === null ? 0 : centerY - (rect.top + rect.height / 2);
+        const stacked = `translate(${dx}px, ${dy}px) scale(${stackScale})`;
+        const appearAt = i * appear;
+        const spreadAt = spreadStart + i * spreadStep;
+        const frames = [
+          { opacity: 0, transform: stacked, offset: 0 },
+          { opacity: 0, transform: stacked, offset: appearAt / total },
+          { opacity: 1, transform: stacked, offset: (appearAt + 0.06) / total },
+          { opacity: 1, transform: stacked, offset: spreadAt / total, easing: 'cubic-bezier(.65, 0, .2, 1)' },
+          { opacity: 1, transform: 'none', offset: (spreadAt + spreadTime) / total },
+          { opacity: 1, transform: 'none', offset: 1 }
+        ];
+        const animation = card.animate(frames, { duration: total * 1000, fill: 'both' });
+        animation.finished.then(() => { card.style.opacity = ''; animation.cancel(); }).catch(() => {});
+      });
+    };
+    const worksObserver = new IntersectionObserver((entries, observer) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      playWorksIntro();
+    }, { threshold: isMobile ? 0.45 : 0.3 });
+    worksObserver.observe(worksGrid);
+  }
 });

@@ -1128,7 +1128,7 @@ html.has-custom-cursor * { cursor: none !important; }
 @media (max-width: 700px) {
   :root { --block-gap: clamp(6rem, 24vw, 8rem); }
   .hero { height: 100vh; height: 100svh; min-height: 0; }
-  .hero__content { padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)); }
+  .hero__content { padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px)); }
   .home-works .section-heading { margin-bottom: 2.5rem; }
   .home-works__grid { row-gap: 3.25rem; }
   .home-voices { padding-top: clamp(1rem, 6vw, 2.5rem); }
@@ -1231,7 +1231,7 @@ html:has(.kontakt-page) { background: var(--ink); }
 
 .hero__role { bottom: clamp(2.4rem, 5.5vw, 3.4rem); color: rgba(255, 255, 255, .8); font-size: .68rem; letter-spacing: .14em; margin: 0; position: absolute; right: var(--page-pad); text-align: right; text-transform: uppercase; z-index: 2; }
 @media (max-width: 700px) {
-  .hero__role { bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); font-size: .6rem; }
+  .hero__role { bottom: calc(7.4rem + env(safe-area-inset-bottom, 0px)); font-size: .6rem; }
 }
 .hero__role { opacity: 0; transition: opacity 1s var(--ease) 1s; }
 .hero.is-open .hero__role { opacity: 1; }

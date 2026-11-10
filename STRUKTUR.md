@@ -5,7 +5,7 @@ Portfolio/
 ├── index.html          Startseite
 ├── 404.html            Fehlerseite (mit Moka-Kanne)
 ├── vercel.json         Weiterleitungen alter Adressen (z. B. /contact.html)
-├── portfolio/          Seite «Arbeiten» (Projektraster, Filter, Lightbox, Reel-Feed)
+├── arbeiten/           Seite «Arbeiten» (Projektraster, Filter, Lightbox, Reel-Feed)
 ├── ueber-mich/         Seite «Über mich»
 ├── kontakt/            Kontaktseite mit Formular (Formspree) und Danke-Popup
 ├── datenschutz/        Datenschutzerklärung

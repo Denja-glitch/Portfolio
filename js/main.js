@@ -900,7 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
       'embassy-kirchhofer': {
         title: 'Embassy Kirchhofer Group',
         handle: '@embassy_jewel_ag',
-        handles: '@embassy_jewel_ag · @kirchhofer_official',
         items: [
           cloudinaryVideo('video_26', '1789981743', {
             title: 'Blancpain Unboxing',
@@ -1043,14 +1042,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const titleNode = reelFeed.querySelector('#reel-feed-title');
-    const handleNode = reelFeed.querySelector('[data-reel-handle]');
     const closeButton = reelFeed.querySelector('.reel-feed__close');
     const reelPanel = reelFeed.querySelector('[data-reel-panel]');
-    const progressNode = reelFeed.querySelector('[data-reel-progress]');
     const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let reelObserver;
-    let reelScrollTick = 0;
 
     const createMutedVideo = (src, poster, label) => {
       const video = document.createElement('video');
@@ -1108,33 +1103,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
-    const updateReelScroll = () => {
-      reelScrollTick = 0;
-      const scroller = reelPanel || reelFeed;
-      const viewH = scroller.clientHeight;
-      const maxScroll = Math.max(1, scroller.scrollHeight - viewH);
-      const progress = Math.max(0, Math.min(1, scroller.scrollTop / maxScroll));
-      progressNode?.style.setProperty('--reel-progress', progress.toFixed(3));
-      if (reduceMotion.matches) return;
-
-      const origin = scroller.getBoundingClientRect().top;
-      const fadeStart = viewH * 0.94;
-      const fadeEnd = viewH * 0.4;
-      const span = fadeStart - fadeEnd;
-      reelGrid.querySelectorAll('.reel-card').forEach((card) => {
-        const top = card.getBoundingClientRect().top - origin;
-        let amount = (fadeStart - top) / span;
-        amount = Math.max(0, Math.min(1, amount));
-        amount *= amount * (3 - 2 * amount);
-        card.style.setProperty('--reel-in', amount.toFixed(3));
-      });
-    };
-
-    const onReelScroll = () => {
-      if (reelScrollTick) return;
-      reelScrollTick = window.requestAnimationFrame(updateReelScroll);
-    };
-
     const closeReelFeed = () => {
       reelFeed.classList.remove('is-open');
       reelFeed.setAttribute('aria-hidden', 'true');
@@ -1142,17 +1110,12 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('is-reel-feed-open');
       stopReels();
       reelObserver?.disconnect();
-      reelPanel?.removeEventListener('scroll', onReelScroll);
-      reelFeed.removeEventListener('scroll', onReelScroll);
-      window.cancelAnimationFrame(reelScrollTick);
-      reelScrollTick = 0;
     };
 
     const renderReelFeed = (feedId) => {
       const feed = reelFeeds[feedId];
       if (!feed) return;
       if (titleNode) titleNode.textContent = feed.title;
-      if (handleNode) handleNode.textContent = feed.handles || feed.handle;
       reelGrid.replaceChildren();
 
       feed.items.forEach((item) => {
@@ -1207,9 +1170,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.add('is-reel-feed-open');
       closeButton?.focus();
       reelObserver?.disconnect();
-      scroller.addEventListener('scroll', onReelScroll, { passive: true });
-      updateReelScroll();
-      window.requestAnimationFrame(updateReelScroll);
 
       if (canHover.matches) return;
 

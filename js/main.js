@@ -1327,10 +1327,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMobile = window.matchMedia('(max-width: 700px)').matches;
     const workCards = [...worksGrid.querySelectorAll('.home-work')].filter((card) => card.offsetParent !== null);
     workCards.forEach((card) => { card.style.opacity = '0'; });
+    const worksHeading = document.querySelector('.home-works .section-heading');
+    if (worksHeading) {
+      worksHeading.style.opacity = '0';
+      worksHeading.style.transition = 'opacity 1s var(--ease)';
+    }
+    const introDone = [];
     const playWorksIntro = () => {
       const gridRect = worksGrid.getBoundingClientRect();
       const centerX = gridRect.left + gridRect.width / 2;
-      const stackScale = isMobile ? 0.42 : 0.5;
+      const stackScale = isMobile ? 0.64 : 0.74;
       const appear = 0.12;
       const spreadStart = 0.2 + workCards.length * appear;
       const spreadStep = 0.07;
@@ -1352,8 +1358,10 @@ document.addEventListener('DOMContentLoaded', () => {
           { opacity: 1, transform: 'none', offset: 1 }
         ];
         const animation = card.animate(frames, { duration: total * 1000, fill: 'both' });
-        animation.finished.then(() => { card.style.opacity = ''; animation.cancel(); }).catch(() => {});
+        const done = animation.finished.then(() => { card.style.opacity = ''; animation.cancel(); }).catch(() => {});
+        introDone.push(done);
       });
+      Promise.all(introDone).then(() => { if (worksHeading) worksHeading.style.opacity = ''; });
     };
     const worksObserver = new IntersectionObserver((entries, observer) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;

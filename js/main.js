@@ -376,16 +376,83 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const footerReveal = document.querySelector('.page-footer--reveal');
-  if (footerReveal && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const footerRevealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        footerReveal.classList.toggle('is-revealed', entry.isIntersecting && entry.intersectionRatio > 0.35);
-      });
-    }, { threshold: [0.2, 0.35, 0.55, 0.75] });
-    footerRevealObserver.observe(footerReveal);
-  } else if (footerReveal) {
-    footerReveal.classList.add('is-revealed');
+  // Mobile Galerie: Richtung sperren – beim senkrechten Scrollen bleibt sie fix, seitliches Wischen bleibt möglich
+  const lockGrid = document.querySelector('.home-works__grid');
+  if (lockGrid) {
+    let start = null;
+    let axis = null;
+    let frozenLeft = 0;
+    const freeze = () => { if (axis === 'y') lockGrid.scrollLeft = frozenLeft; };
+    lockGrid.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      start = { x: t.clientX, y: t.clientY };
+      axis = null;
+      frozenLeft = lockGrid.scrollLeft;
+    }, { passive: true });
+    lockGrid.addEventListener('touchmove', (e) => {
+      if (!start || axis) return;
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - start.x);
+      const dy = Math.abs(t.clientY - start.y);
+      if (dx < 6 && dy < 6) return;
+      axis = dy > dx * 0.8 ? 'y' : 'x';
+      if (axis === 'y') {
+        lockGrid.style.overflowX = 'hidden';
+        lockGrid.style.scrollSnapType = 'none';
+      }
+    }, { passive: true });
+    const release = () => {
+      freeze();
+      lockGrid.style.overflowX = '';
+      lockGrid.style.scrollSnapType = '';
+      start = null;
+      axis = null;
+    };
+    lockGrid.addEventListener('touchend', release, { passive: true });
+    lockGrid.addEventListener('touchcancel', release, { passive: true });
+    lockGrid.addEventListener('scroll', freeze, { passive: true });
+  }
+
+  // Footer: Animation startet, sobald er wirklich sichtbar wird (aufgedeckt oder normal im Fluss)
+  const footerAnim = document.querySelector('.page-footer--reveal, .page-footer--rise');
+  if (footerAnim) {
+    const hiddenBehind = footerAnim.classList.contains('page-footer--reveal');
+    const pageMain = document.querySelector('main');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      footerAnim.classList.add('is-revealed');
+    } else {
+      let footerTicking = false;
+      let footerTarget = 0;
+      let footerCurrent = 0;
+      let footerRaf = 0;
+      const easeFooter = () => {
+        footerCurrent += (footerTarget - footerCurrent) * 0.045;
+        if (Math.abs(footerTarget - footerCurrent) < 0.001) footerCurrent = footerTarget;
+        footerAnim.style.setProperty('--footer-p', footerCurrent.toFixed(4));
+        footerRaf = footerCurrent === footerTarget ? 0 : window.requestAnimationFrame(easeFooter);
+      };
+      const updateFooterProgress = () => {
+        footerTicking = false;
+        const footerHeight = footerAnim.offsetHeight || 1;
+        // Aufgedeckter Footer: sichtbar ist, was unter der Unterkante des Inhalts liegt. Sonst: was im Fenster liegt.
+        const top = hiddenBehind && pageMain ? Math.max(0, pageMain.getBoundingClientRect().bottom) : footerAnim.getBoundingClientRect().top;
+        const visible = Math.min(footerHeight, Math.max(0, window.innerHeight - top));
+        const ratio = visible / footerHeight;
+        // Farbwechsel schwarz -> hell läuft mit dem Scrollen (weich nachgezogen)
+        footerTarget = Math.min(1, Math.max(0, (ratio - 0.6) / 0.4));
+        if (!footerRaf) footerRaf = window.requestAnimationFrame(easeFooter);
+        if (ratio > 0.3) footerAnim.classList.add('is-revealed');
+        else if (ratio < 0.05) footerAnim.classList.remove('is-revealed');
+      };
+      const queueFooterProgress = () => {
+        if (footerTicking) return;
+        footerTicking = true;
+        window.requestAnimationFrame(updateFooterProgress);
+      };
+      window.addEventListener('scroll', queueFooterProgress, { passive: true });
+      window.addEventListener('resize', queueFooterProgress);
+      updateFooterProgress();
+    }
   }
 
   const lightbox = document.querySelector('[data-lightbox-dialog]');
@@ -691,14 +758,15 @@ document.addEventListener('DOMContentLoaded', () => {
       stageWheelLock = now;
       showStage(stageIndex + (event.deltaY > 0 ? 1 : -1), event.deltaY > 0 ? 1 : -1);
     }, { passive: false });
-    let stageTouchY = null;
-    stage.addEventListener('touchstart', (event) => { stageTouchY = event.touches[0].clientY; }, { passive: true });
+    let stageTouch = null;
+    stage.addEventListener('touchstart', (event) => { stageTouch = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }, { passive: true });
     stage.addEventListener('touchend', (event) => {
-      if (stageTouchY === null) return;
-      const delta = event.changedTouches[0].clientY - stageTouchY;
-      stageTouchY = null;
-      if (Math.abs(delta) < 48) return;
-      showStage(stageIndex + (delta < 0 ? 1 : -1), delta < 0 ? 1 : -1);
+      if (!stageTouch) return;
+      const dx = event.changedTouches[0].clientX - stageTouch.x;
+      const dy = event.changedTouches[0].clientY - stageTouch.y;
+      stageTouch = null;
+      if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+      showStage(stageIndex + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
     }, { passive: true });
     document.addEventListener('keydown', (event) => {
       if (!lightbox.classList.contains('is-open')) return;
@@ -1336,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const playWorksIntro = () => {
       const gridRect = worksGrid.getBoundingClientRect();
       const centerX = gridRect.left + gridRect.width / 2;
-      const stackScale = isMobile ? 0.64 : 0.74;
+      const stackScale = isMobile ? 1.3 : 1.45;
       const appear = 0.12;
       const spreadStart = 0.2 + workCards.length * appear;
       const spreadStep = 0.07;

@@ -1330,7 +1330,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const playWorksIntro = () => {
       const gridRect = worksGrid.getBoundingClientRect();
       const centerX = gridRect.left + gridRect.width / 2;
-      const centerY = isMobile ? null : gridRect.top + gridRect.height / 2;
       const stackScale = isMobile ? 0.42 : 0.5;
       const appear = 0.12;
       const spreadStart = 0.2 + workCards.length * appear;
@@ -1341,8 +1340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('is-visible');
         const rect = card.getBoundingClientRect();
         const dx = centerX - (rect.left + rect.width / 2);
-        const dy = centerY === null ? 0 : centerY - (rect.top + rect.height / 2);
-        const stacked = `translate(${dx}px, ${dy}px) scale(${stackScale})`;
+        const stacked = `translateX(${dx}px) scale(${stackScale})`;
         const appearAt = i * appear;
         const spreadAt = spreadStart + i * spreadStep;
         const frames = [
@@ -1361,7 +1359,38 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       observer.disconnect();
       playWorksIntro();
-    }, { threshold: isMobile ? 0.45 : 0.3 });
+    }, { threshold: 0.45 });
     worksObserver.observe(worksGrid);
+  }
+  // Desktop: Galerie per Maus ziehen (Karussell ohne sichtbare Scrollleiste)
+  if (worksGrid && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let startX = 0;
+    let startScroll = 0;
+    let dragged = false;
+    let pressed = false;
+    worksGrid.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 || window.innerWidth <= 700) return;
+      pressed = true;
+      dragged = false;
+      startX = event.clientX;
+      startScroll = worksGrid.scrollLeft;
+    });
+    window.addEventListener('pointermove', (event) => {
+      if (!pressed) return;
+      const delta = event.clientX - startX;
+      if (!dragged && Math.abs(delta) > 6) {
+        dragged = true;
+        worksGrid.classList.add('is-dragging');
+      }
+      if (dragged) worksGrid.scrollLeft = startScroll - delta;
+    });
+    window.addEventListener('pointerup', () => {
+      pressed = false;
+      worksGrid.classList.remove('is-dragging');
+    });
+    worksGrid.addEventListener('click', (event) => {
+      if (dragged) { event.preventDefault(); dragged = false; }
+    }, true);
+    worksGrid.addEventListener('dragstart', (event) => event.preventDefault());
   }
 });

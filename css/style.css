@@ -997,11 +997,14 @@ a.page-footer__mark:hover span { color: inherit; }
 }
 
 @media (min-width: 701px) {
-  .home-works__grid { align-items: start; grid-template-columns: repeat(12, minmax(0, 1fr)); row-gap: clamp(3rem, 6vw, 5.5rem); }
-  .home-work:nth-child(1) { grid-column: 1 / span 7; grid-row: 1; }
-  .home-work:nth-child(2) { align-self: center; grid-column: 9 / span 4; grid-row: 1 / span 2; }
-  .home-work:nth-child(2) .home-work__media { aspect-ratio: 4 / 5; }
-  .home-work:nth-child(3) { grid-column: 3 / span 6; grid-row: 2; }}
+  .home-works { --work-h: min(48svh, 24rem); }
+  .home-works__grid { align-items: start; cursor: grab; display: flex; gap: clamp(1.25rem, 2.2vw, 2rem); margin-inline: calc(var(--page-pad) * -1); overflow-x: auto; padding: 0 var(--page-pad) 1.5rem; scroll-padding-inline: var(--page-pad); scroll-snap-type: x proximity; scrollbar-width: none; }
+  .home-works__grid::-webkit-scrollbar { display: none; }
+  .home-works__grid.is-dragging { cursor: grabbing; scroll-snap-type: none; user-select: none; }
+  .home-work { --ratio: 1.7778; flex: 0 0 auto; scroll-snap-align: start; width: calc(var(--work-h) * var(--ratio)); }
+  .home-work:nth-child(2) { --ratio: .8; }
+  .home-work__media { aspect-ratio: auto; height: var(--work-h); }
+}
 
 /* 2 · Cursor und magnetische Elemente */
 .cursor { align-items: center; background: #fff; border-radius: 50%; color: #000; display: flex; font-size: .6rem; height: .9rem; justify-content: center; left: 0; letter-spacing: .12em; mix-blend-mode: difference; opacity: 0; pointer-events: none; position: fixed; text-transform: uppercase; top: 0; transform: translate3d(-100px, -100px, 0); transition: opacity .25s var(--ease), width .4s var(--ease), height .4s var(--ease); width: .9rem; z-index: 9999; }

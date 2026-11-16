@@ -38,8 +38,11 @@
   <main>
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__stage">
-        <video class="hero__video" autoplay muted loop playsinline preload="metadata">
+        <video class="hero__video is-active" autoplay muted playsinline preload="auto" data-hero-clip>
           <source src="assets/videos/hero-2.mp4" type="video/mp4">
+        </video>
+        <video class="hero__video" muted playsinline preload="auto" data-hero-clip aria-hidden="true">
+          <source src="assets/videos/hero-golf-loop.mp4" type="video/mp4">
         </video>
         <div class="hero__veil"></div>
         <div class="hero__dim" aria-hidden="true"></div>

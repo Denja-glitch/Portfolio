@@ -312,6 +312,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }).catch(() => {});
   };
 
+  // Über mich: „Ich bin“ + grüne Unterschrift (statisch; auf sichtbare Striche zugeschnitten, damit sie so hoch wie der Text wirkt)
+  const aboutScript = document.querySelector('[data-about-script]');
+  if (aboutScript) {
+    const width = 720;
+    loadSignature(width).then((data) => {
+      let minX = data.width;
+      let minY = data.height;
+      let maxX = 0;
+      let maxY = 0;
+      for (let i = 0; i < data.cover.length; i += 1) {
+        if (data.cover[i] < 40) continue;
+        const x = i % data.width;
+        const y = (i / data.width) | 0;
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+      const pad = 6;
+      minX = Math.max(0, minX - pad);
+      minY = Math.max(0, minY - pad);
+      maxX = Math.min(data.width - 1, maxX + pad);
+      maxY = Math.min(data.height - 1, maxY + pad);
+      const cropW = Math.max(1, maxX - minX + 1);
+      const cropH = Math.max(1, maxY - minY + 1);
+      aboutScript.width = cropW;
+      aboutScript.height = cropH;
+      const ctx = aboutScript.getContext('2d');
+      const image = ctx.createImageData(cropW, cropH);
+      const [r, g, b] = [92, 118, 80];
+      const out = image.data;
+      for (let y = 0; y < cropH; y += 1) {
+        for (let x = 0; x < cropW; x += 1) {
+          const src = (minY + y) * data.width + (minX + x);
+          const k = (y * cropW + x) * 4;
+          out[k] = r;
+          out[k + 1] = g;
+          out[k + 2] = b;
+          out[k + 3] = data.cover[src];
+        }
+      }
+      ctx.putImageData(image, 0, 0);
+    }).catch(() => {});
+  }
+
   // Danke-Popup nach dem Absenden
   const showThanks = (name) => {
     const first = (name || '').trim().split(/\s+/)[0];
@@ -791,15 +836,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const hero = document.querySelector('.hero');
   if (hero) {
-    const video = hero.querySelector('.hero__video');
+    const clips = [...hero.querySelectorAll('[data-hero-clip]')];
+    const video = clips[0];
 
     const openHero = () => hero.classList.add('is-open');
     if (reduceMotion) {
       openHero();
-      video?.pause();
+      clips.forEach((clip) => clip.pause());
     } else {
       window.requestAnimationFrame(() => window.requestAnimationFrame(openHero));
       video?.play()?.catch(() => {});
+      // Hero-Loop: Clips wechseln sich ab (weiche Überblendung), danach beginnt es von vorn
+      if (clips.length > 1) {
+        let current = 0;
+        clips.forEach((clip, index) => {
+          clip.addEventListener('ended', () => {
+            if (index !== current) return;
+            const next = (current + 1) % clips.length;
+            const nextClip = clips[next];
+            nextClip.currentTime = 0;
+            nextClip.play()?.catch(() => {});
+            nextClip.classList.add('is-active');
+            clip.classList.remove('is-active');
+            current = next;
+          });
+        });
+      }
     }
 
     if (!reduceMotion) {
@@ -1290,7 +1352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Cursor: folgt der Maus und benennt, was ein Klick öffnet.
+  // Cursor: folgt der Maus und zeigt beim Hovern den Titel der Arbeit.
   if (canHoverPreview) {
     const cursor = document.createElement('div');
     cursor.className = 'cursor';
@@ -1298,7 +1360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursorLabel = document.createElement('span');
     cursor.append(cursorLabel);
     document.body.append(cursor);
-    const targetSelector = '.home-work, .project-card__media';
+    const targetSelector = '.home-work__media, .project-card__media';
     let tx = -100;
     let ty = -100;
     let cx = -100;
@@ -1308,11 +1370,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const labelFor = (el) => {
       if (el.hasAttribute('data-reel-feed')) return 'Feed';
-      if (el.classList.contains('home-work')) return el.querySelector('video') ? 'Film' : 'Ansehen';
-      const gallery = el.getAttribute('data-gallery') || '';
-      const isFilm = el.getAttribute('data-media-type') === 'youtube'
-        || /youtu\.?be|vimeo/.test(gallery.split('|')[0] || '');
-      return isFilm ? 'Film' : 'Ansehen';
+      const card = el.closest('.project-card');
+      if (card) {
+        const cats = (card.getAttribute('data-category') || '').split(/\s+/);
+        if (cats.includes('photography')) return 'Galerie öffnen';
+      }
+      const title = el.closest('.home-work, .project-card')?.querySelector('h3')?.textContent.trim();
+      return title || '';
     };
 
     const tickCursor = () => {
@@ -1332,6 +1396,13 @@ document.addEventListener('DOMContentLoaded', () => {
       wakeCursor();
     };
 
+    const updateTarget = (clientX, clientY, node) => {
+      const insideOverlay = node?.closest?.('.lightbox, .reel-feed');
+      setTarget(insideOverlay ? null : (node?.closest?.(targetSelector) || null));
+      tx = clientX;
+      ty = clientY;
+      wakeCursor();
+    };
     document.addEventListener('mousemove', (event) => {
       if (!document.documentElement.classList.contains('has-custom-cursor')) {
         cx = event.clientX;
@@ -1339,12 +1410,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('has-custom-cursor');
         cursor.classList.add('is-visible');
       }
-      tx = event.clientX;
-      ty = event.clientY;
-      const insideOverlay = event.target.closest?.('.lightbox, .reel-feed');
-      setTarget(insideOverlay ? null : (event.target.closest?.(targetSelector) || null));
-      wakeCursor();
+      updateTarget(event.clientX, event.clientY, event.target);
     }, { passive: true });
+    // Auch beim Scrollen prüfen, was unter dem Cursor liegt (sonst bleibt der Titel hängen)
+    const recheckTarget = () => {
+      if (!activeTarget) return;
+      updateTarget(tx, ty, document.elementFromPoint(tx, ty));
+    };
+    window.addEventListener('scroll', recheckTarget, { passive: true, capture: true });
+    document.addEventListener('wheel', recheckTarget, { passive: true });
     document.documentElement.addEventListener('mouseleave', () => { setTarget(null); cursor.classList.remove('is-visible'); document.documentElement.classList.remove('has-custom-cursor'); });
   }
 
@@ -1389,53 +1463,34 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', queueScrollEffects, { passive: true });
   window.addEventListener('resize', queueScrollEffects);
   updateScrollEffects();
-  // Startseite: Arbeiten erscheinen gestapelt in der Mitte, einzeln eingeblendet, und fächern sich dann auf
+  // Startseite: Vorschauen steigen nacheinander von unten ein (Bildfläche öffnet sich von unten, Bild zoomt ein), danach bleibt die Reihe seitlich durchscrollbar
   const worksGrid = document.querySelector('.home-works__grid');
   if (worksGrid && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && worksGrid.animate) {
-    const isMobile = window.matchMedia('(max-width: 700px)').matches;
     const workCards = [...worksGrid.querySelectorAll('.home-work')].filter((card) => card.offsetParent !== null);
     workCards.forEach((card) => { card.style.opacity = '0'; });
-    const worksHeading = document.querySelector('.home-works .section-heading');
-    if (worksHeading) {
-      worksHeading.style.opacity = '0';
-      worksHeading.style.transition = 'opacity 1s var(--ease)';
-    }
-    const introDone = [];
     const playWorksIntro = () => {
-      const gridRect = worksGrid.getBoundingClientRect();
-      const centerX = gridRect.left + gridRect.width / 2;
-      const stackScale = isMobile ? 1.3 : 1.45;
-      const appear = 0.12;
-      const spreadStart = 0.2 + workCards.length * appear;
-      const spreadStep = 0.07;
-      const spreadTime = 0.95;
-      const total = spreadStart + (workCards.length - 1) * spreadStep + spreadTime;
+      const ease = 'cubic-bezier(.16, 1, .3, 1)';
       workCards.forEach((card, i) => {
         card.classList.add('is-visible');
-        const rect = card.getBoundingClientRect();
-        const dx = centerX - (rect.left + rect.width / 2);
-        const stacked = `translateX(${dx}px) scale(${stackScale})`;
-        const appearAt = i * appear;
-        const spreadAt = spreadStart + i * spreadStep;
-        const frames = [
-          { opacity: 0, transform: stacked, offset: 0 },
-          { opacity: 0, transform: stacked, offset: appearAt / total },
-          { opacity: 1, transform: stacked, offset: (appearAt + 0.06) / total },
-          { opacity: 1, transform: stacked, offset: spreadAt / total, easing: 'cubic-bezier(.65, 0, .2, 1)' },
-          { opacity: 1, transform: 'none', offset: (spreadAt + spreadTime) / total },
-          { opacity: 1, transform: 'none', offset: 1 }
-        ];
-        const animation = card.animate(frames, { duration: total * 1000, fill: 'both' });
-        const done = animation.finished.then(() => { card.style.opacity = ''; animation.cancel(); }).catch(() => {});
-        introDone.push(done);
+        const delay = i * 150;
+        const media = card.querySelector('.home-work__media');
+        const image = media?.querySelector('img');
+        const meta = card.querySelector('.home-work__meta');
+        const runs = [
+          card.animate([{ transform: 'translateY(9rem)' }, { transform: 'none' }], { delay, duration: 1600, easing: ease, fill: 'both' }),
+          media?.animate([{ clipPath: 'inset(100% 0 0 0 round 1.6rem)' }, { clipPath: 'inset(0 0 0 0 round 0rem)' }], { delay, duration: 1500, easing: ease, fill: 'both' }),
+          image?.animate([{ transform: 'scale(1.4)' }, { transform: 'scale(1)' }], { delay, duration: 1900, easing: ease, fill: 'both' }),
+          meta?.animate([{ opacity: 0 }, { opacity: 1 }], { delay: delay + 800, duration: 800, easing: 'ease-out', fill: 'both' })
+        ].filter(Boolean);
+        card.style.opacity = '';
+        Promise.all(runs.map((run) => run.finished)).then(() => runs.forEach((run) => run.cancel())).catch(() => {});
       });
-      Promise.all(introDone).then(() => { if (worksHeading) worksHeading.style.opacity = ''; });
     };
     const worksObserver = new IntersectionObserver((entries, observer) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       observer.disconnect();
       playWorksIntro();
-    }, { threshold: 0.45 });
+    }, { threshold: 0.3 });
     worksObserver.observe(worksGrid);
   }
   // Desktop: Galerie per Maus ziehen (Karussell ohne sichtbare Scrollleiste)

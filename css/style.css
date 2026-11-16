@@ -112,7 +112,8 @@ button { color: inherit; font: inherit; }
 .hero { --hero-progress: 0; background: #1b1b18; color: var(--white); height: 100svh; min-height: 42rem; overflow: hidden; position: relative; }
 .hero__stage { clip-path: inset(48% 0 48% 0); inset: 0; overflow: hidden; position: absolute; transition: clip-path 1.35s var(--ease); }
 .hero.is-open .hero__stage { clip-path: inset(0); }
-.hero__video { height: 100%; left: 0; object-fit: cover; opacity: .78; position: absolute; top: 0; transform: scale(calc(1 + var(--hero-progress) * .12)); width: 100%; will-change: transform; }
+.hero__video { height: 100%; left: 0; object-fit: cover; opacity: 0; transition: opacity 1s var(--ease); position: absolute; top: 0; transform: scale(calc(1 + var(--hero-progress) * .12)); width: 100%; will-change: transform; }
+.hero__video.is-active { opacity: .78; }
 .hero__veil { background: linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.12) 40%, rgba(0,0,0,.7)); inset: 0; position: absolute; }
 .hero__dim { background: var(--ink); inset: 0; opacity: min(1, calc(var(--hero-progress) * 1.7)); pointer-events: none; position: absolute; }
 .hero__content { opacity: max(0, calc(1 - var(--hero-progress) * 1.9)); transform: translateY(calc(var(--hero-progress) * -2.5rem)); bottom: 0; left: 0; max-width: min(72rem, 100%); padding: 0 var(--page-pad) clamp(2.4rem, 5.5vw, 3.4rem); position: absolute; text-align: left; z-index: 2; }
@@ -989,11 +990,12 @@ a.page-footer__mark:hover span { color: inherit; }
 
 /* 2 · Cursor und magnetische Elemente */
 .cursor { align-items: center; background: #fff; border-radius: 50%; color: #000; display: flex; font-size: .6rem; height: .9rem; justify-content: center; left: 0; letter-spacing: .12em; mix-blend-mode: difference; opacity: 0; pointer-events: none; position: fixed; text-transform: uppercase; top: 0; transform: translate3d(-100px, -100px, 0); transition: opacity .25s var(--ease), width .4s var(--ease), height .4s var(--ease); width: .9rem; z-index: 9999; }
-.cursor.is-active { background: #fff; color: var(--ink); height: 6.5rem; mix-blend-mode: normal; width: 6.5rem; }
+.cursor.is-active { background: transparent; color: #fff; font-family: var(--display); font-size: clamp(1.1rem, 1.7vw, 1.5rem); height: auto; letter-spacing: -.04em; mix-blend-mode: normal; text-shadow: 0 1px 14px rgba(0, 0, 0, .45); text-transform: none; white-space: nowrap; width: auto; }
 .cursor span { display: block; opacity: 0; transform: scale(.6); transition: opacity .25s var(--ease), transform .4s var(--ease); }
 .cursor.is-active span { opacity: 1; transform: none; transition-delay: .08s; }
 html.has-custom-cursor,
 html.has-custom-cursor * { cursor: none !important; }
+html.has-custom-cursor .project-card__overlay { display: none; }
 .cursor.is-visible { opacity: 1; }
 .is-magnetic { transition: translate .6s var(--ease); }
 .is-magnetic.is-pulling { transition: translate .12s linear; }
@@ -1029,7 +1031,6 @@ html.has-custom-cursor * { cursor: none !important; }
   ::view-transition-new(root) { animation: none; }}
 
 /* Startseite: Abstände zwischen den Blöcken */
-.home-works,
 .home-works { padding-top: var(--block-gap); }
 
 /* Footer: Datenschutz-Link */
@@ -1285,3 +1286,66 @@ html::-webkit-scrollbar { display: none; }
 .page-footer__legal { color: color-mix(in srgb, var(--footer-fg) 50%, transparent); }
 @media (prefers-reduced-motion: reduce) { .page-footer { --footer-p: 1; } }
 .page-footer--rise { display: flex; flex-direction: column; justify-content: space-between; margin-top: 0; min-height: 100svh; }
+
+/* Mit Maus: Titel erscheint nur beim Hovern (am Cursor), darunter steht nur die Kategorie. Touch-Geräte zeigen den Titel weiter. */
+/* Desktop mit Maus: Titel nur am Cursor; mobil immer unter der Vorschau */
+@media (hover: hover) and (pointer: fine) and (min-width: 701px) {
+  .home-work__meta h3,
+  .project-card__meta h3 { clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
+  .home-work__meta,
+  .project-card__meta { justify-content: flex-end; text-align: right; }
+}
+@media (max-width: 700px) {
+  .home-work__meta h3,
+  .project-card__meta h3 {
+    clip-path: none;
+    height: auto;
+    overflow: visible;
+    position: static;
+    white-space: normal;
+    width: auto;
+  }
+  .home-work__meta,
+  .project-card__meta { display: block; text-align: left; }
+  .home-work__meta span,
+  .project-card__meta span { display: block; margin-top: .25rem; }
+}
+.cursor:not(.is-active) { text-shadow: none; }
+.cursor:not(.is-active) span { transition-duration: .08s; transition-delay: 0s; }
+
+.about__title { align-items: baseline; display: inline; }
+.about__script {
+  display: inline-block;
+  height: 0.95em;
+  margin: 0 0.04em 0;
+  position: relative;
+  top: 0.32em;
+  vertical-align: baseline;
+  width: auto;
+}
+
+/* Desktop: Ausgewählte Arbeiten – aktives Projekt kommt beim Hovern leicht nach vorne (nicht mobil) */
+@media (min-width: 701px) and (hover: hover) and (pointer: fine) {
+  .home-works__grid { overflow-y: visible; }
+  .home-work {
+    position: relative;
+    transition: transform .55s var(--ease);
+    will-change: transform;
+    z-index: 1;
+  }
+  .home-work:hover {
+    transform: scale(1.06);
+    z-index: 4;
+  }
+  .home-works__grid.is-dragging .home-work {
+    transition: none;
+  }
+  .home-works__grid.is-dragging .home-work:hover {
+    transform: none;
+    z-index: 1;
+  }
+}
+@media (min-width: 701px) and (prefers-reduced-motion: reduce) {
+  .home-work { transition: none !important; }
+  .home-work:hover { transform: none !important; }
+}

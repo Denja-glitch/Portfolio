@@ -1369,12 +1369,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let cursorFrame = 0;
 
     const labelFor = (el) => {
-      if (el.hasAttribute('data-reel-feed')) return 'Feed';
-      const card = el.closest('.project-card');
-      if (card) {
-        const cats = (card.getAttribute('data-category') || '').split(/\s+/);
-        if (cats.includes('photography')) return 'Galerie öffnen';
-      }
       const title = el.closest('.home-work, .project-card')?.querySelector('h3')?.textContent.trim();
       return title || '';
     };

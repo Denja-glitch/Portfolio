@@ -178,7 +178,14 @@ document.addEventListener('DOMContentLoaded', () => {
     floatNav.setAttribute('aria-hidden', 'true');
     const home = siteHeader.querySelector('.wordmark');
     const items = [];
-    if (home) items.push({ href: home.getAttribute('href'), text: 'DA.', cls: 'float-nav__home', label: 'Startseite' });
+    if (home) {
+      items.push({
+        href: home.getAttribute('href'),
+        cls: 'float-nav__home',
+        label: 'Startseite',
+        html: home.querySelector('.wordmark__logo')?.outerHTML || ''
+      });
+    }
     links.forEach((link) => {
       const isContact = link.classList.contains('header-contact');
       items.push({
@@ -191,10 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
     items.forEach((item) => {
       const a = document.createElement('a');
       a.href = item.href;
-      a.textContent = item.text;
       a.className = `float-nav__link ${item.cls}`.trim();
       a.tabIndex = -1;
       if (item.label) a.setAttribute('aria-label', item.label);
+      if (item.html) a.innerHTML = item.html;
+      else a.textContent = item.text;
       if (item.active) a.classList.add('is-active');
       floatNav.append(a);
     });

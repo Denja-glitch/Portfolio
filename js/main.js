@@ -761,6 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lightbox.setAttribute('aria-hidden', 'true');
       if (document.body.classList.contains('is-lightbox-open')) unlockScroll();
       document.body.classList.remove('is-lightbox-open');
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
       window.clearTimeout(closeTimer);
       closeTimer = window.setTimeout(() => {
         if (lightbox.classList.contains('is-open')) return;
@@ -778,8 +779,21 @@ document.addEventListener('DOMContentLoaded', () => {
       trigger.addEventListener('click', (event) => {
         event.preventDefault();
         openLightbox(trigger);
+        const projectId = trigger.closest('.project-card')?.id;
+        if (projectId) history.replaceState(null, '', `#${projectId}`);
       });
     });
+    const openFromHash = () => {
+      const id = decodeURIComponent(location.hash.replace(/^#/, ''));
+      if (!id) return;
+      const card = document.getElementById(id);
+      const trigger = card?.querySelector('[data-lightbox], [data-reel-feed]');
+      if (!trigger) return;
+      if (trigger.hasAttribute('data-lightbox')) openLightbox(trigger);
+      else trigger.click();
+    };
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
     lightbox.querySelectorAll('[data-lightbox-close]').forEach((closeButton) => closeButton.addEventListener('click', closeLightbox));
     stage.querySelector('[data-stage-close]').addEventListener('click', () => {
       if (stage.classList.contains('is-overlay')) closeStageOverlay();

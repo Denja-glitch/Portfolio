@@ -1426,6 +1426,7 @@ html::-webkit-scrollbar { display: none; }
 .cursor:not(.is-active) span { transition-duration: .08s; transition-delay: 0s; }
 
 .about__title { align-items: baseline; display: inline; }
+.about__title > span[aria-hidden="true"] { color: var(--accent); }
 .about__script {
   display: inline-block;
   height: 0.95em;

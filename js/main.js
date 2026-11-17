@@ -228,7 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
     signaturePromise = signaturePromise || fetch(signatureUrl)
       .then((response) => response.text())
       .then((text) => {
-        const svg = text.replace(/\.cls-2\s*\{[^}]*\}/, '.cls-2 { fill: #000; stroke: none; }');
+        const svg = text
+          .replace(/\.cls-2\s*\{[^}]*\}/, '.cls-2 { fill: #000; stroke: none; }')
+          .replace(/\.st1\s*\{[^}]*\}/, '.st1 { fill: #000; stroke: none; }');
         const viewBox = svg.match(/viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/);
         const ratio = viewBox ? Number(viewBox[2]) / Number(viewBox[1]) : 0.75;
         const height = Math.round(width * ratio);

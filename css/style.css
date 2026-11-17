@@ -144,7 +144,6 @@ p { margin-top: 0; }
 .hero h1 { font-family: var(--display); font-size: clamp(3rem, 6.4vw, 6.4rem); font-weight: 400; letter-spacing: -.075em; line-height: .93; margin-bottom: 0; }
 em { font-style: italic; }
 .hero h1 em { color: #fff; text-align: right; }
-.hero__move { -webkit-text-fill-color: transparent; -webkit-text-stroke: clamp(1.5px, .018em, 3px) #fff; color: transparent; letter-spacing: -.04em; }
 .page-title em { color: inherit; }
 
 .home-page { --footer-reveal: 100svh; }
@@ -199,7 +198,14 @@ em { font-style: italic; }
 .home-works__grid { display: grid; gap: clamp(2rem, 4vw, 3.5rem) clamp(1.25rem, 2.2vw, 2rem); grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .home-work { color: inherit; display: block; }
 .home-work--mobile { display: none; }
-.home-work__media { aspect-ratio: 16 / 9; background: #d8d4cc; overflow: hidden; position: relative; }
+.home-work__media {
+  aspect-ratio: 16 / 9;
+  background: #d8d4cc;
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+  transform: translateZ(0);
+}
 .home-work__media video { height: 100%; inset: 0; object-fit: cover; position: absolute; width: 100%; }
 .home-work__media img { height: 100%; object-fit: cover; position: relative; transition: filter 1.35s var(--ease), opacity .45s var(--ease), transform 1.35s var(--ease); width: 100%; z-index: 1; }
 .home-work:hover .home-work__media img { filter: brightness(.84) saturate(1.04); transform: scale(1.035); }
@@ -1259,8 +1265,7 @@ html:has(.kontakt-page) { background: var(--ink); }
 .thanks.is-open .thanks__panel { clip-path: inset(0 round var(--lb-radius)); }
 .thanks__eyebrow,
 .thanks__title,
-.thanks__text,
-.thanks__script { opacity: 0; transform: translateY(.9rem); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.thanks__text { opacity: 0; transform: translateY(.9rem); transition: opacity .7s var(--ease), transform .7s var(--ease); }
 .thanks.is-open :is(.thanks__eyebrow, .thanks__title, .thanks__text) { opacity: 1; transform: none; }
 .thanks.is-open .thanks__eyebrow { transition-delay: .35s; }
 .thanks.is-open .thanks__title { transition-delay: .45s; }
@@ -1268,11 +1273,49 @@ html:has(.kontakt-page) { background: var(--ink); }
 .thanks__eyebrow { color: rgba(243, 241, 236, .55); font-size: .62rem; letter-spacing: .14em; margin: 0 0 1.2rem; text-transform: uppercase; }
 .thanks__title { font-family: var(--display); font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 400; letter-spacing: -.07em; line-height: 1; margin: 0 0 1.2rem; }
 .thanks__text { color: rgba(243, 241, 236, .75); font-size: .92rem; line-height: 1.6; margin: 0; max-width: 26rem; }
-.thanks__script { aspect-ratio: 1004.35 / 749.91; display: block; height: clamp(4.5rem, 11vw, 6rem); margin-top: 1.8rem; opacity: 1; transform: none; transition: none; width: auto; }
+.thanks__script-wrap {
+  margin-top: 1.8rem;
+}
+.thanks__script {
+  aspect-ratio: 1003.35 / 751.46;
+  color: var(--accent);
+  display: block;
+  height: clamp(4.5rem, 11vw, 6rem);
+  overflow: visible;
+  width: auto;
+}
+.thanks__mask-path {
+  fill: none;
+  stroke: #fff;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-miterlimit: 10;
+  stroke-width: 25;
+}
+.thanks.is-open .thanks__mask-path {
+  animation: thanks-write 2.6s ease-in-out 1.1s forwards;
+}
+.thanks.is-open .thanks__mask-path--dot {
+  animation-delay: 3.45s;
+  animation-duration: .4s;
+}
+.thanks__script.is-drawn .thanks__mask-path {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+@keyframes thanks-write {
+  to { stroke-dashoffset: 0; }
+}
 .thanks__close { align-items: center; background: none; border: 1px solid rgba(243, 241, 236, .2); border-radius: 50%; color: inherit; cursor: pointer; display: flex; font-size: 1.4rem; height: 2.5rem; justify-content: center; line-height: 1; position: absolute; right: 1rem; top: 1rem; transition: background .3s var(--ease); width: 2.5rem; }
 .thanks__close:hover,
 .thanks__close:focus-visible { background: rgba(243, 241, 236, .12); outline: 0; }
-@media (prefers-reduced-motion: reduce) { .thanks__panel, .thanks__script { clip-path: none !important; transition: none; } .thanks__eyebrow, .thanks__title, .thanks__text { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .thanks__panel { clip-path: none !important; transition: none; }
+  .thanks__eyebrow, .thanks__title, .thanks__text { transform: none; }
+  .thanks__mask-path { animation: none !important; stroke-dashoffset: 0; }
+}
 
 /* Hero-Titel: erster Block oben links, zweiter Block unten rechts */
 .hero__content { height: 100%; max-width: none; padding-top: clamp(6.5rem, 12vw, 8.5rem); right: 0; top: 0; }

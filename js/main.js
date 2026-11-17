@@ -286,39 +286,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     return signaturePromise;
   };
-  const writeSignature = (canvas, isActive) => {
-    const width = 560;
-    loadSignature(width).then((data) => {
-      canvas.width = data.width;
-      canvas.height = data.height;
-      const ctx = canvas.getContext('2d');
-      const image = ctx.createImageData(data.width, data.height);
-      const [r, g, b] = [92, 118, 80];
-      const paint = (front) => {
-        const out = image.data;
-        for (let i = 0; i < data.cover.length; i += 1) {
-          const k = i * 4;
-          const reach = Math.min(1, Math.max(0, (front - data.dist[i]) / 10));
-          out[k] = r; out[k + 1] = g; out[k + 2] = b;
-          out[k + 3] = data.dist[i] < 0 ? 0 : data.cover[i] * reach;
-        }
-        ctx.putImageData(image, 0, 0);
-      };
-      if (reduceMotion) { paint(data.max + 20); return; }
-      paint(-20);
-      const delay = 1100;
-      const duration = 2600;
-      const begin = performance.now() + delay;
-      const tick = (now) => {
-        if (!isActive()) return;
-        const t = Math.min(1, Math.max(0, (now - begin) / duration));
-        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        paint(eased * (data.max + 20));
-        if (t < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    }).catch(() => {});
+  // Danke-Popup: Unterschrift per SVG-Maske «nachschreiben»
+  const thanksSignatureUrl = new URL('../assets/images/Unterschrift_Denja_Nachzeichnung.svg', document.querySelector('script[src*="main.js"]')?.src || document.baseURI).href;
+  let thanksSignatureMarkup = null;
+  const loadThanksSignature = () => {
+    thanksSignatureMarkup = thanksSignatureMarkup || fetch(thanksSignatureUrl)
+      .then((response) => response.text())
+      .then((text) => text.trim());
+    return thanksSignatureMarkup;
   };
+  const mountThanksSignature = (host) => loadThanksSignature().then((markup) => {
+    const uid = `thanks-schreib-maske-${Math.random().toString(36).slice(2, 9)}`;
+    host.innerHTML = markup
+      .replace(/id="thanks-schreib-maske"/g, `id="${uid}"`)
+      .replace(/url\(#thanks-schreib-maske\)/g, `url(#${uid})`);
+    if (reduceMotion) host.querySelector('.thanks__script')?.classList.add('is-drawn');
+  }).catch(() => {});
 
   // Über mich: „Ich bin“ + grüne Unterschrift (statisch; auf sichtbare Striche zugeschnitten, damit sie so hoch wie der Text wirkt)
   const aboutScript = document.querySelector('[data-about-script]');
@@ -379,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
       + '<p class="thanks__eyebrow">Nachricht gesendet</p>'
       + '<h2 class="thanks__title" id="thanks-title"></h2>'
       + '<p class="thanks__text">Schön, dass du dich meldest. Ich lese deine Nachricht in Ruhe und antworte dir persönlich, meistens innerhalb von zwei Tagen.</p>'
-      + '<canvas class="thanks__script" aria-hidden="true"></canvas>'
+      + '<div class="thanks__script-wrap" aria-hidden="true"></div>'
       + '</div>';
     overlay.querySelector('#thanks-title').textContent = first ? `Danke dir, ${first}.` : 'Danke dir.';
     document.body.append(overlay);
@@ -392,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const onKey = (event) => { if (event.key === 'Escape') close(); };
     overlay.querySelectorAll('[data-thanks-close]').forEach((el) => el.addEventListener('click', close));
     document.addEventListener('keydown', onKey);
-    writeSignature(overlay.querySelector('.thanks__script'), () => overlay.isConnected);
+    mountThanksSignature(overlay.querySelector('.thanks__script-wrap'));
     requestAnimationFrame(() => requestAnimationFrame(() => {
       overlay.classList.add('is-open');
       overlay.querySelector('.thanks__close').focus({ preventScroll: true });
@@ -402,9 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Kontaktformular: Anfrage über Formspree senden
   const form = document.querySelector('[data-contact-form]');
   if (form) {
+    loadThanksSignature();
     const status = document.querySelector('[data-contact-status]');
     const submit = form.querySelector('[type="submit"]');
-    const fallback = 'Das hat leider nicht geklappt. Schreib mir direkt an <a href="mailto:framesbydenja@gmail.com">framesbydenja@gmail.com</a>.';
+    const fallback = 'Das hat leider nicht geklappt. Schreib mir direkt an <a href="mailto:hello@denjaamstutz.ch">hello@denjaamstutz.ch</a>.';
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       submit.disabled = true;
@@ -1480,12 +1464,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const meta = card.querySelector('.home-work__meta');
         const runs = [
           card.animate([{ transform: 'translateY(9rem)' }, { transform: 'none' }], { delay, duration: 1600, easing: ease, fill: 'both' }),
-          media?.animate([{ clipPath: 'inset(100% 0 0 0 round 1.6rem)' }, { clipPath: 'inset(0 0 0 0 round 0rem)' }], { delay, duration: 1500, easing: ease, fill: 'both' }),
+          media?.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0)' }], { delay, duration: 1500, easing: ease, fill: 'both' }),
           image?.animate([{ transform: 'scale(1.4)' }, { transform: 'scale(1)' }], { delay, duration: 1900, easing: ease, fill: 'both' }),
           meta?.animate([{ opacity: 0 }, { opacity: 1 }], { delay: delay + 800, duration: 800, easing: 'ease-out', fill: 'both' })
         ].filter(Boolean);
         card.style.opacity = '';
-        Promise.all(runs.map((run) => run.finished)).then(() => runs.forEach((run) => run.cancel())).catch(() => {});
+        Promise.all(runs.map((run) => run.finished)).then(() => {
+          runs.forEach((run) => run.cancel());
+          if (media) {
+            media.style.clipPath = '';
+            media.style.webkitClipPath = '';
+          }
+          if (image) image.style.transform = '';
+        }).catch(() => {});
       });
     };
     const worksObserver = new IntersectionObserver((entries, observer) => {

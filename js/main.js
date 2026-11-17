@@ -1344,17 +1344,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const canHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  document.querySelectorAll('.home-work__media video').forEach((video) => {
-    const card = video.closest('.home-work');
-    if (!card || reduceMotion || !canHoverPreview) return;
+  document.querySelectorAll('.home-work__media video, .project-card__media video').forEach((video) => {
+    const media = video.closest('.home-work__media, .project-card__media');
+    if (!media || reduceMotion || !canHoverPreview) return;
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
-    card.addEventListener('mouseenter', () => {
+    media.addEventListener('mouseenter', () => {
       const attempt = video.play();
       if (attempt) attempt.catch(() => {});
     });
-    card.addEventListener('mouseleave', () => {
+    media.addEventListener('mouseleave', () => {
       video.pause();
       try { video.currentTime = 0; } catch (_) {}
     });
